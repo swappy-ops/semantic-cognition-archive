@@ -1,0 +1,2635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Semantic Poetic Archive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --bg-color: #020202;
+  --text-primary: #ebebe3;
+  --text-muted: #77746d;
+  --text-faint: #242421;
+  --glass: rgba(10, 10, 10, 0.48);
+  --edge: rgba(255, 255, 255, 0.065);
+  --cluster-observer: 108, 168, 171;
+  --cluster-governance: 184, 134, 85;
+  --cluster-labor: 181, 98, 92;
+  --cluster-divine: 140, 115, 166;
+  --cluster-emergent: 120, 138, 109;
+}
+
+* { box-sizing: border-box; }
+
+html { background: var(--bg-color); }
+
+body {
+  background:
+    radial-gradient(circle at 50% 10%, rgba(255,255,255,0.022), transparent 32rem),
+    var(--bg-color);
+  color: var(--text-primary);
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.25rem;
+  line-height: 2.8;
+  margin: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+button {
+  color: inherit;
+  font: inherit;
+}
+
+.meta-text,
+h1,
+h2,
+h3 {
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 300;
+  letter-spacing: 0.05em;
+}
+
+.container {
+  max-width: 740px;
+  margin: 0 auto;
+  padding: 11rem 2rem;
+  position: relative;
+  z-index: 10;
+}
+
+#semantic-visualization,
+#semantic-visualization canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 1;
+}
+
+#semantic-constellation {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  will-change: transform;
+}
+
+#semantic-rail {
+  position: fixed;
+  right: 1.4rem;
+  top: 5.6rem;
+  z-index: 110;
+  width: min(240px, calc(100vw - 2.2rem));
+  padding: 0.95rem;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  background: rgba(6, 6, 6, 0.5);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.34), inset 0 0 0 1px rgba(255,255,255,0.02);
+  backdrop-filter: blur(8px);
+  display: grid;
+  gap: 0.56rem;
+  font-size: 0.58rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.rail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.7rem;
+}
+
+.rail-label {
+  color: rgba(119, 116, 109, 0.66);
+}
+
+.rail-value {
+  color: rgba(235, 235, 227, 0.86);
+  max-width: 126px;
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#rail-intensity {
+  width: 118px;
+  accent-color: rgba(235, 235, 227, 0.45);
+}
+
+.rail-switch {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 999px;
+  padding: 0.2rem 0.56rem;
+  background: rgba(255,255,255,0.03);
+  color: rgba(235, 235, 227, 0.76);
+  cursor: pointer;
+}
+
+.rail-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.38rem;
+  margin-top: 0.25rem;
+}
+
+.rail-actions button {
+  border: 1px solid rgba(255,255,255,0.11);
+  border-radius: 6px;
+  padding: 0.4rem 0.52rem;
+  background: rgba(255,255,255,0.025);
+  color: rgba(235, 235, 227, 0.72);
+  cursor: pointer;
+  font-size: 0.56rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.rail-actions button:hover,
+.rail-actions button:focus-visible,
+.rail-switch:hover,
+.rail-switch:focus-visible {
+  border-color: rgba(255,255,255,0.22);
+  color: rgba(235, 235, 227, 0.96);
+  outline: none;
+}
+
+.rail-actions button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.constellation-node {
+  position: absolute;
+  pointer-events: auto;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  opacity: 0.035;
+  transition: color 5s ease, text-shadow 5s ease, opacity 5s ease;
+  animation: drift 40s infinite alternate ease-in-out, twinkle 8s infinite alternate ease-in-out;
+}
+
+.constellation-node:hover,
+.constellation-node:focus-visible {
+  color: var(--text-muted);
+  opacity: 0.8;
+  outline: none;
+  text-shadow: 0 0 8px rgba(255,255,255,0.2);
+}
+
+#semantic-breadcrumbs {
+  position: fixed;
+  top: 2.5rem;
+  left: 2.5rem;
+  z-index: 100;
+  display: flex;
+  max-width: min(290px, calc(100vw - 5rem));
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  padding: 1rem 1.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 8px;
+  color: var(--text-muted);
+  background: var(--glass);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(6px);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.62rem;
+  letter-spacing: 0.2em;
+  line-height: 1.8;
+  opacity: 0;
+  pointer-events: none;
+  text-transform: uppercase;
+  transition: opacity 800ms ease;
+}
+
+#semantic-breadcrumbs.visible { opacity: 1; }
+
+.breadcrumb-node {
+  opacity: 0.44;
+  transition: color 4s ease, opacity 4s ease;
+}
+
+.breadcrumb-node:last-child {
+  opacity: 1;
+  text-shadow: 0 0 10px currentColor;
+}
+
+.breadcrumb-separator {
+  color: var(--text-faint);
+  opacity: 0.35;
+}
+
+#intro-glyph {
+  position: fixed;
+  right: 2rem;
+  top: 2rem;
+  z-index: 120;
+  width: 2.4rem;
+  height: 2.4rem;
+  border: 1px solid var(--edge);
+  border-radius: 50%;
+  background: rgba(5, 5, 5, 0.35);
+  color: rgba(235,235,227,0.58);
+  cursor: pointer;
+  line-height: 1;
+  backdrop-filter: blur(8px);
+  transition: color 800ms ease, border-color 800ms ease, transform 800ms ease;
+}
+
+#intro-glyph:hover,
+#intro-glyph:focus-visible {
+  color: var(--text-primary);
+  border-color: rgba(235,235,227,0.22);
+  outline: none;
+  transform: rotate(35deg);
+}
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 110;
+  display: grid;
+  place-items: center;
+  padding: 2rem;
+  background:
+    radial-gradient(circle at 52% 35%, rgba(140, 115, 166, 0.11), transparent 32rem),
+    rgba(2, 2, 2, 0.72);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 900ms ease;
+}
+
+.intro-overlay.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.intro-vellum {
+  width: min(720px, 100%);
+  max-height: min(780px, calc(100vh - 4rem));
+  overflow: auto;
+  padding: clamp(2rem, 5vw, 4rem);
+  border: 1px solid rgba(255,255,255,0.075);
+  border-radius: 8px;
+  background: rgba(3, 3, 3, 0.54);
+  box-shadow: 0 40px 100px rgba(0,0,0,0.55), inset 0 0 70px rgba(255,255,255,0.018);
+  transform: translateY(1rem) scale(0.985);
+  transition: transform 1000ms ease;
+}
+
+.intro-overlay.visible .intro-vellum {
+  transform: translateY(0) scale(1);
+}
+
+.intro-kicker {
+  margin: 0 0 1.3rem;
+  color: var(--text-muted);
+  font-size: 0.62rem;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+}
+
+.intro-vellum h1 {
+  margin: 0 0 2rem;
+  color: #f0f0e8;
+  font-size: clamp(1.5rem, 4vw, 2.4rem);
+  line-height: 1.35;
+}
+
+.intro-copy p {
+  margin: 0 0 1.1rem;
+  color: rgba(235,235,227,0.72);
+  font-size: clamp(1rem, 2vw, 1.12rem);
+  line-height: 2;
+}
+
+.intro-copy ul {
+  margin: 0 0 1.1rem;
+  padding-left: 1.5rem;
+  color: rgba(235,235,227,0.72);
+  font-size: clamp(1rem, 2vw, 1.12rem);
+  line-height: 2;
+  list-style: none;
+}
+
+.intro-copy ul li::before {
+  content: "—";
+  position: absolute;
+  margin-left: -1.5rem;
+  color: rgba(235,235,227,0.4);
+}
+
+.intro-actions {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 2.5rem;
+}
+
+.dont-show-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.6rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.dont-show-label input {
+  accent-color: var(--text-muted);
+  cursor: pointer;
+}
+
+#intro-dismiss {
+  margin-top: 1.6rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.035);
+  color: rgba(235,235,227,0.76);
+  cursor: pointer;
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition: color 600ms ease, border-color 600ms ease, background 600ms ease;
+}
+
+#intro-dismiss:hover,
+#intro-dismiss:focus-visible {
+  color: var(--text-primary);
+  border-color: rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.055);
+  outline: none;
+}
+
+#hero {
+  min-height: 56vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin-bottom: 7rem;
+}
+
+#hero h1 {
+  margin: 0 0 1.4rem;
+  color: #f0f0e8;
+  font-size: clamp(2rem, 6vw, 3.7rem);
+  line-height: 1.18;
+  text-transform: uppercase;
+}
+
+.subtitle {
+  max-width: 480px;
+  margin: 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.9;
+}
+
+.mode-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  margin-top: 3rem;
+}
+
+.mode-button {
+  padding: 0.55rem 0.7rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 999px;
+  background: rgba(255,255,255,0.025);
+  color: rgba(235,235,227,0.42);
+  cursor: pointer;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  line-height: 1;
+  text-transform: uppercase;
+  transition: color 700ms ease, border-color 700ms ease, background 700ms ease;
+}
+
+.mode-button.active,
+.mode-button:hover,
+.mode-button:focus-visible {
+  color: rgba(235,235,227,0.82);
+  border-color: rgba(255,255,255,0.16);
+  background: rgba(255,255,255,0.045);
+  outline: none;
+}
+
+#cognition-map {
+  margin: 0 0 10rem;
+  padding: 0;
+}
+
+.map-header {
+  margin-bottom: 2rem;
+  border-bottom: 1px solid var(--text-faint);
+  padding-bottom: 1.2rem;
+}
+
+h2 {
+  margin: 0 0 0.8rem;
+  color: var(--text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.25em;
+  line-height: 1.7;
+  text-transform: uppercase;
+}
+
+.map-header p {
+  margin: 0;
+  color: rgba(119,116,109,0.58);
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.relationship-map {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+  max-width: 600px;
+  margin: 6rem auto;
+  overflow: visible;
+  border: none;
+  background: transparent;
+}
+
+.relationship-map::before {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  border: 1px solid rgba(255,255,255,0.02);
+  border-radius: 50%;
+  background: 
+    linear-gradient(to bottom, transparent 33%, rgba(255,255,255,0.03) 33%, rgba(255,255,255,0.03) 34%, transparent 34%, transparent 45%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.03) 46%, transparent 46%),
+    linear-gradient(to right, transparent 40%, rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.02) 41%, transparent 41%),
+    repeating-radial-gradient(circle at center, transparent 0, transparent 15%, rgba(255,255,255,0.015) 15%, rgba(255,255,255,0.015) 15.5%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.map-circuitry {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 0;
+}
+.map-circuitry path {
+  fill: none;
+  stroke: rgba(255,255,255,0.03);
+  stroke-width: 0.5px;
+  transition: stroke 600ms ease, stroke-width 600ms ease;
+}
+.map-circuitry path.active {
+  stroke: rgba(235,235,227,0.3);
+  stroke-width: 1.5px;
+  filter: drop-shadow(0 0 6px rgba(255,255,255,0.15));
+}
+
+.map-node {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border: 0;
+  background: transparent;
+  color: rgba(235,235,227,0.52);
+  cursor: pointer;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  transition: color 300ms ease, text-shadow 300ms ease, transform 300ms ease;
+  animation: nodeDrift 12s ease-in-out infinite alternate;
+}
+
+@keyframes nodeDrift {
+  0% { margin-top: 0; margin-left: 0; }
+  100% { margin-top: -6px; margin-left: 6px; }
+}
+
+.map-node::before {
+  content: "";
+  display: block;
+  width: var(--node-size, 0.42rem);
+  height: var(--node-size, 0.42rem);
+  margin: 0 auto 0.45rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 14px currentColor;
+}
+
+.map-node:hover,
+.map-node:focus-visible,
+.map-node.active {
+  color: rgba(235,235,227,0.82);
+  outline: none;
+  text-shadow: 0 0 12px currentColor;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.map-node.hover-preview {
+  color: rgba(235,235,227,0.74);
+  text-shadow: 0 0 9px currentColor;
+}
+
+#semantic-field {
+  position: relative;
+}
+
+.document-node {
+  margin-bottom: 11rem;
+  position: relative;
+}
+
+.document-meta {
+  margin: 0 0 4rem;
+  color: rgba(119,116,109,0.44);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  line-height: 1.8;
+  text-transform: uppercase;
+}
+
+.stanza {
+  margin-bottom: 3.4rem;
+  padding: 1.4rem 1.8rem 1.4rem 2.35rem;
+  border-left: 1px solid rgba(255, 255, 255, 0.03);
+  border-radius: 2px;
+  position: relative;
+  transition: border-color 700ms ease, box-shadow 700ms ease, opacity 700ms ease, background 700ms ease;
+}
+
+.stanza:has(.ignition-source) {
+  border-left-color: rgba(255, 255, 255, 0.25);
+  box-shadow: -20px 0 30px -20px rgba(255, 255, 255, 0.08);
+}
+
+.motif {
+  border-bottom: 1px solid rgba(255,255,255,0.14);
+  color: rgba(235, 235, 227, 0.76);
+  cursor: pointer;
+  transition: color 220ms ease, text-shadow 220ms ease, opacity 220ms ease, border-color 220ms ease, filter 220ms ease;
+}
+
+.dimmed {
+  opacity: 0.24;
+  transition: opacity 700ms ease;
+}
+
+.motif:hover,
+.motif:focus-visible,
+.motif.hover-preview {
+  opacity: 1;
+  border-bottom-color: currentColor;
+  text-shadow: 0 0 8px currentColor;
+  outline: none;
+}
+
+.motif.ignition-source {
+  color: var(--text-primary);
+  font-style: italic;
+  opacity: 1;
+  position: relative;
+  z-index: 20;
+  animation: breatheGlow 4s infinite ease-in-out;
+}
+
+.motif.propagated {
+  opacity: 0.74;
+  transition: opacity 380ms ease, color 380ms ease;
+}
+
+.motif.memory-scar {
+  opacity: 0.36 !important;
+  border-bottom: 1px dotted var(--text-faint);
+  transition: opacity 900ms ease, color 900ms ease;
+}
+
+.cluster-observer.ignition-source { color: rgb(var(--cluster-observer)); }
+.cluster-governance.ignition-source { color: rgb(var(--cluster-governance)); }
+.cluster-labor.ignition-source { color: rgb(var(--cluster-labor)); }
+.cluster-divine.ignition-source { color: rgb(var(--cluster-divine)); }
+.cluster-emergent.ignition-source { color: rgb(var(--cluster-emergent)); }
+
+.cluster-observer.propagated { color: rgba(var(--cluster-observer), 0.72); text-shadow: 0 0 5px rgba(var(--cluster-observer),0.2); }
+.cluster-governance.propagated { color: rgba(var(--cluster-governance), 0.72); text-shadow: 0 0 5px rgba(var(--cluster-governance),0.2); }
+.cluster-labor.propagated { color: rgba(var(--cluster-labor), 0.72); text-shadow: 0 0 5px rgba(var(--cluster-labor),0.2); }
+.cluster-divine.propagated { color: rgba(var(--cluster-divine), 0.72); text-shadow: 0 0 5px rgba(var(--cluster-divine),0.2); }
+.cluster-emergent.propagated { color: rgba(var(--cluster-emergent), 0.72); text-shadow: 0 0 5px rgba(var(--cluster-emergent),0.2); }
+
+.cluster-observer.memory-scar { color: rgba(var(--cluster-observer), 0.4); }
+.cluster-governance.memory-scar { color: rgba(var(--cluster-governance), 0.4); }
+.cluster-labor.memory-scar { color: rgba(var(--cluster-labor), 0.4); }
+.cluster-divine.memory-scar { color: rgba(var(--cluster-divine), 0.4); }
+.cluster-emergent.memory-scar { color: rgba(var(--cluster-emergent), 0.4); }
+
+#reflection {
+  margin-top: 15rem;
+}
+
+#reflection p,
+#reflection li {
+  color: var(--text-muted);
+}
+
+#reflection p {
+  font-size: 1.05rem;
+  line-height: 2.05;
+}
+
+#reflection li {
+  margin-bottom: 1.5rem;
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.95rem;
+  line-height: 2.2;
+}
+
+#reflection strong {
+  color: rgba(140, 115, 166, 0.64);
+  font-weight: normal;
+}
+
+#residual-motifs {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2.8rem;
+  margin-top: 13rem;
+  padding-top: 10rem;
+  padding-bottom: 16rem;
+  border-top: 1px solid var(--text-faint);
+  opacity: 0.22;
+}
+
+.residual-fragment {
+  color: var(--text-faint);
+  font-family: "Space Grotesk", sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  animation: residualDrift 36s infinite alternate ease-in-out;
+}
+
+body.ui-passive .constellation-node {
+  opacity: 0.026;
+}
+
+body.ui-passive .stanza {
+  background: rgba(255, 255, 255, 0.006);
+}
+
+body.ui-exploration .stanza {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+body.ui-traversal .stanza {
+  background: rgba(255, 255, 255, 0.022);
+}
+
+@keyframes breatheGlow {
+  0% { filter: drop-shadow(0 0 5px currentColor) brightness(1); }
+  50% { filter: drop-shadow(0 0 10px currentColor) brightness(1.15); }
+  100% { filter: drop-shadow(0 0 5px currentColor) brightness(1); }
+}
+
+@keyframes drift {
+  0% { transform: translateY(0) translateX(0) rotate(0deg); }
+  100% { transform: translateY(-60px) translateX(40px) rotate(5deg); }
+}
+
+@keyframes residualDrift {
+  0% { transform: translateY(0) translateX(0) scale(1); opacity: 0.02; }
+  50% { opacity: 0.3; }
+  100% { transform: translateY(-30px) translateX(-40px) scale(1.05); opacity: 0.02; }
+}
+
+@keyframes twinkle {
+  0% { opacity: 0.02; }
+  100% { opacity: 0.2; }
+}
+
+@media (max-width: 760px) {
+  body {
+    font-size: 1.08rem;
+    line-height: 2.5;
+  }
+
+  .container { padding: 8.5rem 1.15rem; }
+
+  #semantic-breadcrumbs {
+    left: 1rem;
+    top: 1rem;
+    max-width: calc(100vw - 5rem);
+  }
+
+  #intro-glyph {
+    right: 1rem;
+    top: 1rem;
+  }
+
+  #semantic-rail {
+    right: 0.7rem;
+    top: 4.5rem;
+    width: min(208px, calc(100vw - 1.4rem));
+    padding: 0.75rem;
+  }
+
+  .stanza {
+    padding: 1.2rem 0.45rem 1.2rem 1.15rem;
+  }
+
+  .relationship-map {
+    min-height: 300px;
+  }
+}
+
+</style>
+</head>
+<body>
+  <div id="semantic-visualization" aria-hidden="true">
+    <canvas id="bg-canvas"></canvas>
+  </div>
+
+  <aside id="semantic-constellation" aria-label="Semantic constellation"></aside>
+  <aside id="semantic-rail" class="meta-text" aria-label="Semantic instrumentation">
+    <div class="rail-row">
+      <span class="rail-label">state</span>
+      <span id="rail-state" class="rail-value">passive</span>
+    </div>
+    <div class="rail-row">
+      <span class="rail-label">motif</span>
+      <span id="rail-motif" class="rail-value">none</span>
+    </div>
+    <div class="rail-row">
+      <span class="rail-label">mode</span>
+      <span id="rail-mode" class="rail-value">associative drift</span>
+    </div>
+    <div class="rail-row">
+      <span class="rail-label">intensity</span>
+      <input id="rail-intensity" type="range" min="20" max="100" value="62" aria-label="Traversal intensity">
+    </div>
+    <div class="rail-row">
+      <span class="rail-label">drift</span>
+      <button id="rail-drift-toggle" type="button" class="rail-switch" aria-pressed="false">assisted</button>
+    </div>
+    <div class="rail-actions">
+      <button id="rail-continue" type="button">continue path</button>
+      <button id="rail-reset" type="button">reset field</button>
+      <button id="rail-map" type="button">map focus</button>
+    </div>
+  </aside>
+  <nav id="semantic-breadcrumbs" aria-label="Cognition trail"></nav>
+
+  <button id="intro-glyph" type="button" aria-label="Open archive introduction">o</button>
+
+  <div id="intro-overlay" class="intro-overlay visible" role="dialog" aria-modal="true" aria-labelledby="intro-title">
+    <div class="intro-vellum">
+      <p class="intro-kicker meta-text">semantic observatory</p>
+      <h1 id="intro-title" class="meta-text">SEMANTIC POETIC ARCHIVE</h1>
+      <div class="intro-copy">
+        <p>Think of this less like reading a document and more like traversing a semantic field.</p>
+        <p>You don’t need to read top to bottom.</p>
+        <p>Start anywhere.</p>
+        <p>The glowing or underlined words are motifs.<br>Those are the primary interaction anchors.</p>
+        <p>When you click a motif:</p>
+        <ul>
+          <li>the field reorganizes around that concept</li>
+          <li>related semantic structures become active</li>
+          <li>the environment subtly responds</li>
+          <li>connected occurrences emerge across the archive</li>
+        </ul>
+        <p>The breadcrumb trail remembers your traversal path.<br>It shows the semantic route you’ve taken through the archive.</p>
+        <p>The cognition map is not a menu.<br>It’s a relationship field.</p>
+        <p>Traversal modes change how the system navigates semantic relationships.</p>
+        <p>You are not expected to fully understand the system immediately.</p>
+        <p>The interface is designed for gradual discovery.</p>
+        <p>The best way to explore it is:</p>
+        <ul>
+          <li>click a motif</li>
+          <li>observe what changes</li>
+          <li>follow the semantic trail</li>
+          <li>move between related concepts</li>
+          <li>let the archive reveal its own structure over time</li>
+        </ul>
+        <p><em>There is no single correct reading path.</em></p>
+      </div>
+      <div class="intro-actions">
+        <button id="intro-dismiss" type="button" class="meta-text">enter field</button>
+        <label class="meta-text dont-show-label">
+          <input type="checkbox" id="intro-dont-show"> don't show again
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <main class="container" id="main-content">
+    <section id="hero">
+      <h1 class="meta-text">Semantic Poetic Archive</h1>
+      <p class="subtitle meta-text">
+        A nonlinear cognition interface for traversing poetic data as semantic topology.
+      </p>
+      <div id="mode-selector" class="mode-selector meta-text" aria-label="Traversal mode selector"></div>
+    </section>
+
+    <section id="cognition-map" aria-label="Cognition map">
+      <div class="map-header">
+        <h2 class="meta-text">Cognition Map</h2>
+        <p class="meta-text">latent semantic topology / future graph observatory</p>
+      </div>
+      <div id="relationship-map" class="relationship-map"></div>
+    </section>
+
+    <section id="semantic-field" aria-label="Semantic archive field"></section>
+
+    <section id="reflection">
+      <h2 class="meta-text">Research Reflection</h2>
+      <p>This artifact now treats poetry as one semantic source within a broader cognition archive model. Its graph is provisional, probabilistic, and deliberately open to future methods: embeddings, richer metadata, multi-user discourse, and AI-assisted inference.</p>
+      <ul>
+        <li><strong>Semantic Recurrence:</strong> motifs are extracted through seeded anchors, frequency, density, and contextual co-occurrence.</li>
+        <li><strong>Associative Traversal:</strong> ignition activates a state, propagates through weighted relationships, and leaves memory traces behind.</li>
+        <li><strong>Research Infrastructure:</strong> dataset loading, relationship scoring, traversal modes, and visual systems are separated so future archives can enter without changing the interface philosophy.</li>
+      </ul>
+      <p>The archive is not a document browser. It is an early semantic engine for moving through thought structures.</p>
+    </section>
+
+    <section id="residual-motifs" aria-label="Residual motifs"></section>
+  </main>
+
+  <script>
+const EMBEDDED_POETRY_ARCHIVE = `i can write a case study on my fast synthesis using the poems I wrote yesterday 
+[07/05, 19:57] swappy: i see everything
+i intervene rarely
+because intervening is a personal act
+I am bringing more abuse towards the victim
+because though they might stop immediately
+but the victim romanticises their captor
+like the captive who never saw freedom
+like the captain who's ship was replaced by pirates,
+but they haven't understood.
+
+"maybe the wind is blowing the ship"
+I reason with my negativity.
+"maybe there is a place for aligning with your captor without romanticizing them?"
+"maybe they are fighting towards a better tomorrow but are bound by their perception?"
+i get bombarded by logic
+these are not the problems of the observer.
+the silent observer observes all,
+resolves arrears, uses independently,
+observing and existing.
+
+I know I see reality as worse than it is.
+Then again what is objective reality,
+if not just a projection of a relative version of our perception of reality?
+Then which is the first reality to exist?
+Ours right?
+For there to exist a projection
+the natural outlook must exist first.
+Then why are we so quick to forgo that natural outlook.
+though unclean and unsocietable,
+that outlook exists besides everything 
+it exists as a portal 
+to a world beyond caring about others
+and what your buzzfeed quiz says about you.
+it exists as a way to figure yourself out,
+only if you can correctly identify your ship, that is.
+[07/05, 19:57] swappy: aksar
+afsar
+bhrashtachar
+aur
+achaar
+dono ka sevan karte hai
+ghar ki zarooratein poori karte hai
+iska adhikaar apni duty ke upar
+rakha karte hai
+kahi gareeb gaadi na chhu le isliye kaafila nikaala karte hai
+
+aksar
+afsar
+bhrasht
+aur
+achaar
+dono ka sevan karte hai
+baithte nahi gandi jagaho pe
+kahi press photo na kheech lein
+aate zaroor the maa ke saath
+ussi dukaan mei samose pelne
+
+apne aap ko zyaada samajhte nahi hain
+bas apna paksh apni baat ke upar
+aur doosre ki izzat?
+zameen ke neeche.
+bewakoofi zyaada spashth hai
+izzatdaari toh ladai se door hoti hai
+aksar afsar apne aap ko kanoon samjhte hai
+
+sharaab piye hue ladke ko
+jaane denge lekin
+majdoor ko ghar jaata dekh nahi paayenge
+uske haath pe maari laathi
+aur uske gaon ka achaar chao ke saath bhrasht parathe pela karte hai
+aksar
+afsar
+bhrasht
+aur
+achaar
+dono ka sevan karte hai
+[07/05, 19:57] swappy: hope
+devolve
+derelict
+decompose
+
+derail
+the detailed
+destruction
+of the dogs
+of dogma.
+don't they decide daily drops
+don't they tie the ribbon on ties and ribbons?
+don't they sit and talk instead of sitting infront of the press
+don't they tire of deciding not to try?
+do they decide the worth of a nation
+stood on itself
+its government paralysing it in stasis
+its media running blind like rabbits
+its struggle encompasses the movement
+it was the first one attacked.
+
+If you want to cripple a nation,
+spread misinformation
+and cripple the student ecosystem
+once the system is in disarray,
+once the graduates have battled bureaucracy
+and sit with dismay
+at the disalarmingly low amount of progress,
+they digress and are better slaves.
+
+the shortest path forward is with the autocrat,
+the favourite colour of designs
+should be saffron
+otherwise what purpose does the orange have?
+not in rhyming it doesn't.
+[07/05, 19:57] swappy: sit and eat with your waiter
+he will tell you a story, 
+that started before your consciousness,
+with his deliberate cognition,
+before your innate instincts kicked in.
+
+sit and eat with your waiter
+he will show you respect
+one that your colleagues long to see
+in their partners,
+you'll realise 
+the race you trouble yourself with
+strips you of your animality
+makes you only a human 
+makes you only enslavable
+only a product of productivity
+and one doomed to provide that.
+
+sit and eat with your cook
+and you'll realise the kitchen you find sparse
+is actually sustence for his family back home for a week,
+what you see in plenty
+is a nightmare for a few
+and an oasis for TOO.MANY.
+
+sit and eat
+and maybe you'll see
+to make food
+and the kitchen around
+so many people have gone hungry 
+and so many have been fed.
+
+sit and eat 
+while you contemplate
+the meaning of a kid rubbing hash,
+it is funny to snicker at.
+The reality of it will hit while you wash your hands.
+
+stand and clean
+the table you just ate at,
+the cook tries to clean it.
+His shift ended an hour ago,
+but he was a caretaker before
+and old habits die hard.
+
+stand and clean
+your hands at the basin,
+it takes 2 mins of constant washing
+with soap to clean the small bits of
+hash 
+the one you spent 2 hours making.
+the hash was delicious when smoked,
+but a tiny speck took so long to clean
+with horror,
+you remember the 
+seemingly
+tar stained hands
+of the children in the village.
+[07/05, 19:57] swappy: dragons lay where i used to rest
+awaken they do 
+and astounded you'd be
+at the size they were slain at
+for i don't look the part,
+but have I ever slain the dragons
+that haunt the world,
+those knights higher than me
+those maidens more intelligent than me
+they seem to bow down
+before the demons i slayed
+we all perceive them different
+then how, I ask, do they seem more lively?
+they seem to have abundance of problems
+and a bagful of issues to accompany
+how does one without slaying their dragons
+win life's battles?
+maybe this is why therapy charges skies
+for the payment for peace
+is costier than the earnings off war.
+
+I lay silently, 
+atop my mountains of slain dragons,
+I sit and scrowl
+at those fighting their draglings under a spotlight.
+"What arises from this? It looks like a scene from The Boys."
+there lies no hesitation 
+in the response to this consideration
+here lies a disgusting revelation 
+of an existence across time
+and trained to sunshine
+and sunrise on a sunclad
+train to blunderland.
+[07/05, 19:57] swappy: i don't believe in the reassurance of religion
+i don't believe in living and putting the blame
+on a being
+so advanced it created life itself
+does that then exclude any belief in the divine?
+NO
+the divine is a feeling
+it is a mathematical impossibility
+it is the reason behind
+improbability becoming possibility
+
+microorganisms
+became macro organisations
+the macro controls the micro
+but the micro encapsulates the lead
+the leading is voted by the micro
+but the macro is blamed
+instead of the micro
+it is the synergy between the micro and macro
+that lets the lead breathe without doing work
+the micro gets microdivided
+but little do the micro know
+the division is what stops the micro
+from becoming the macro.
+the impossibility of the divine
+pushes the micro towards macro
+and
+the divine used by the macro divides it further
+at the same time.
+[07/05, 19:57] swappy: lyari
+wadala
+lokhandwala
+cultural places in pop culture
+and in real life,
+
+places where
+life begins
+but on the big screen
+places trapped in chaos
+repeating a loop of actions
+which only were performed
+once,
+ONCE
+was all it took
+to redefine the meaning of these places.
+
+money earned off of terror
+money earned off of stories
+money earned off of terrorism bleeds RED
+it bleeds red like the victim did
+like the horrific events that unfolded
+they leave little to the imagination,
+
+that evilness is a self feeding loop
+its power when unchallenged
+can grow into depths undiscovered
+and better left undisturbed
+does this evil know no bounds
+suppressing the basic goodness
+not taking into account the reason for terror in religions name,
+or even blaming the right people?
+
+instead opening fire on civilians
+they stroll about not caring what happens
+I write about fiction like it is reality
+because only in fiction can I hold these accountable
+for their present counterparts roam like gods
+untouched.and.unknown.
+the perpetrators use the gods they view themselves as
+and just like them,
+the deciders DONT pay for their actions.
+[07/05, 19:57] swappy: weed is illegal 
+charas by relation is too
+mdma is also 
+driving without a licence 
+drinking in public
+smoking in public
+there are all abstractions to me
+taking proper precautions has led to never getting caught
+is this the police they speak so highly of?
+is this the law that should bind those less morally policed than me?
+I reject this abstraction
+the law has been reduced to moral duty
+instead of a moral boundary
+what stops me from idolising the crow?
+have "conversations with the swap" written before I die?
+MY MORALITY
+MY ETHICAL CODE
+if others don't have it, tough luck
+I will be aware and careful
+but abide by the law?
+I will not
+it is constructed and used as a weapon 
+less a shield
+it protects and projects,
+it helps of course
+but believing that as a reality 
+instead of a consequence of a system,
+is maybe the biggest moral failing
+of the populus at large.
+
+we glorify the vio-
+I glorify the violence 
+as a fellow contrarian
+a rebel,
+dedicated to my own cause.
+I glorify and distribute
+the grey message of these
+agents of anarchy,
+the message I derive
+is one of resistance 
+but is seen as 
+one of innocence 
+not of the soft kind
+but immaturity rather.
+
+This glorification ends
+when you fictionalise it,
+completely.
+Why then equate
+an artistic preference
+with personal expression?
+Is that not the same fallacy
+that seperates the art and artist?
+who are we to question
+the ideas that we are the vessels of
+are the ideas even ours
+or a result of the many life experiences 
+or maybe a sign of the divine?
+how do patterns in art from different geographies emerge?
+are they a result of similar lives,
+or maybe a sign of the divine?
+
+Patterns is how I see
+and there many unlikely that do happen
+is this due to an abundance of events?
+or a touch of the divine?
+
+everything can be attributed to what we believe in
+and nothing can be attributed when that is questioned.
+Our lives are paradoxes
+and they began as such
+Then who are we 
+to question
+what lies in the divine
+and who commands the events?`;
+
+// --- semantic-config.js ---
+const SEEDED_CLUSTERS = {
+  observer: ["observer", "perception", "silence", "look", "see", "outlook", "reality", "objective reality", "existence", "cognition", "consciousness", "associative cognition", "semantic field"],
+  governance: ["law", "governance", "institutions", "rules", "systems", "duty", "accountable", "bureaucracy", "nation", "police", "macro organisations", "moral boundary"],
+  labor: ["labor", "captivity", "productivity", "work", "slaves", "enslavable", "cook", "waiter", "shift", "hungry", "sit and eat", "stand and clean"],
+  divine: ["divine", "probability", "emergence", "impossibility", "gods", "macro", "micro", "paradoxes", "belief", "patterns", "divine impossibility"]
+};
+
+const CLUSTER_COLORS = {
+  observer: [108, 168, 171],
+  governance: [184, 134, 85],
+  labor: [181, 98, 92],
+  divine: [140, 115, 166],
+  emergent: [120, 138, 109],
+  dormant: [8, 8, 8]
+};
+
+const STOP_WORDS = new Set([
+  "the", "and", "to", "a", "of", "in", "i", "is", "that", "it", "for", "with", "on", "as", "are",
+  "this", "but", "we", "they", "not", "you", "be", "an", "or", "at", "from", "by", "my", "your",
+  "their", "was", "were", "what", "who", "how", "when", "where", "why", "if", "then", "so", "me",
+  "them", "has", "have", "had", "do", "don't", "about", "out", "up", "down", "can", "will", "just",
+  "like", "there", "all", "more", "some", "which", "our", "these", "those", "no", "only", "than",
+  "because", "into", "its", "over", "did", "off", "too", "many", "also", "been", "being", "before"
+]);
+
+const TRAVERSAL_MODES = [
+  {
+    id: "associative",
+    label: "Associative Drift",
+    description: "Follow the strongest nearby semantic relations."
+  },
+  {
+    id: "emotional",
+    label: "Emotional Traversal",
+    description: "Bias toward high-intensity and affective recurrence."
+  },
+  {
+    id: "density",
+    label: "Conceptual Density",
+    description: "Move toward motifs with concentrated recurrence."
+  },
+  {
+    id: "contradiction",
+    label: "Contradiction",
+    description: "Seek tension between distant clusters."
+  },
+  {
+    id: "recursive",
+    label: "Recursive Motif",
+    description: "Return through recurring appearances of a concept."
+  },
+  {
+    id: "temporal",
+    label: "Temporal Evolution",
+    description: "Traverse through document order and semantic drift."
+  }
+];
+
+
+// --- semantic-memory.js ---
+class SemanticMemory {
+  constructor(limit = 7) {
+    this.limit = limit;
+    this.path = [];
+    this.occurrences = new Map();
+  }
+
+  remember(motif) {
+    this.path.push(motif);
+    if (this.path.length > this.limit) this.path.shift();
+  }
+
+  nextOccurrence(motif, count, explicitIndex = null) {
+    if (explicitIndex !== null) {
+      this.occurrences.set(motif, explicitIndex);
+      return explicitIndex;
+    }
+
+    const previous = this.occurrences.get(motif);
+    const next = previous === undefined ? 0 : (previous + 1) % Math.max(1, count);
+    this.occurrences.set(motif, next);
+    return next;
+  }
+}
+
+class SemanticState {
+  constructor() {
+    this.activeMotif = null;
+    this.activeCluster = "dormant";
+    this.mode = "associative";
+    this.uiState = "passive";
+    this.isTraversing = false;
+    this.intensity = 0.62;
+    this.driftEnabled = false;
+    this.pendingDriftNode = null;
+  }
+
+  activate({ motif, cluster, mode }) {
+    this.activeMotif = motif;
+    this.activeCluster = cluster || "emergent";
+    this.mode = mode || this.mode;
+    this.uiState = "traversal";
+  }
+
+  setPassive() {
+    this.uiState = "passive";
+    this.activeCluster = this.activeMotif ? this.activeCluster : "dormant";
+  }
+
+  setExploration(motif = null, cluster = null) {
+    this.uiState = "exploration";
+    if (motif) this.activeMotif = motif;
+    if (cluster) this.activeCluster = cluster;
+  }
+}
+
+
+// --- archive-source.js ---
+const FALLBACK_SOURCE = `[07/05, 19:57] archive: semantic archive source unavailable.
+The engine is ready to ingest poetry, journals, interviews, transcripts, field notes, academic writing, and reflective archives.
+Start a local server so poems.txt can enter the field as the active dataset.`;
+
+class SemanticDataset {
+  constructor({ id, title, type = "text-archive", documents = [], metadata = {} }) {
+    this.id = id;
+    this.title = title;
+    this.type = type;
+    this.documents = documents;
+    this.metadata = metadata;
+  }
+}
+
+class DatasetLoader {
+  async loadPoetryArchive(url) {
+    let rawText = EMBEDDED_POETRY_ARCHIVE;
+    return this.fromTimestampedText(rawText, {
+      id: "poetic-archive-2026-05-07",
+      title: "Semantic Poetic Archive",
+      type: "poetry"
+    });
+  }
+
+  fromTimestampedText(rawText, metadata) {
+    const marker = /\[(\d{2}\/\d{2}),\s(\d{2}:\d{2})\]\s([^:]+):/g;
+    const documents = [];
+    const matches = Array.from(rawText.matchAll(marker));
+
+    if (matches.length === 0) {
+      documents.push(this.createDocument(rawText, 0, metadata));
+      return new SemanticDataset({ ...metadata, documents });
+    }
+
+    const prelude = rawText.slice(0, matches[0].index).trim();
+    if (prelude) {
+      documents.push(this.createDocument(prelude, 0, metadata, { role: "preface" }));
+    }
+
+    matches.forEach((match, index) => {
+      const start = match.index + match[0].length;
+      const end = matches[index + 1]?.index ?? rawText.length;
+      const text = rawText.slice(start, end).trim();
+      if (!text) return;
+
+      documents.push(this.createDocument(text, documents.length, metadata, {
+        date: match[1],
+        time: match[2],
+        author: match[3].trim()
+      }));
+    });
+
+    return new SemanticDataset({ ...metadata, documents });
+  }
+
+  createDocument(text, index, datasetMeta, extra = {}) {
+    return {
+      id: `${datasetMeta.id || "dataset"}-${index}`,
+      title: extra.role === "preface" ? "Archive Prelude" : `Cognition Artifact ${index + 1}`,
+      type: datasetMeta.type || "text",
+      text,
+      metadata: {
+        index,
+        sourceTitle: datasetMeta.title,
+        ...extra
+      }
+    };
+  }
+}
+
+
+// --- semantic-engine.js ---
+
+
+const WORD_PATTERN = /\b[\p{L}][\p{L}'-]{2,}\b/gu;
+
+class SemanticEngine {
+  constructor({ seededClusters = SEEDED_CLUSTERS, stopWords = STOP_WORDS } = {}) {
+    this.seededClusters = seededClusters;
+    this.stopWords = stopWords;
+  }
+
+  ingest(dataset) {
+    const documents = dataset.documents.map((document, documentIndex) => this.analyzeDocument(document, documentIndex));
+    const motifs = this.extractMotifs(documents);
+    const graph = this.buildRelationshipGraph(documents, motifs);
+    const topology = this.buildTopology(motifs, graph);
+
+    return {
+      dataset,
+      documents,
+      motifs,
+      graph,
+      topology,
+      createdAt: new Date().toISOString()
+    };
+  }
+
+  analyzeDocument(document, documentIndex) {
+    const stanzas = document.text.split(/\n\s*\n/).map((stanza) => stanza.trim()).filter(Boolean);
+    const tokens = this.tokenize(document.text);
+    const tokenPositions = tokens.map((token, tokenIndex) => ({
+      ...token,
+      documentId: document.id,
+      documentIndex,
+      tokenIndex
+    }));
+
+    return {
+      ...document,
+      documentIndex,
+      stanzas,
+      tokens: tokenPositions,
+      density: tokenPositions.length / Math.max(1, stanzas.length)
+    };
+  }
+
+  tokenize(text) {
+    const words = Array.from(text.matchAll(/[\p{L}'-]+/gu)).map((match) => {
+      const raw = match[0];
+      return {
+        raw,
+        normalized: normalizeToken(raw),
+        index: match.index
+      };
+    }).filter((token) => token.normalized.length > 2 && !this.stopWords.has(token.normalized));
+
+    const seededPhrases = [].concat(...Object.values(this.seededClusters)).filter(w => w.includes(' '));
+    const phraseTokens = [];
+    seededPhrases.forEach(phrase => {
+      const regex = new RegExp(`\\b${phrase}\\b`, 'gi');
+      let match;
+      while ((match = regex.exec(text)) !== null) {
+        phraseTokens.push({
+          raw: match[0],
+          normalized: normalizeToken(match[0]),
+          index: match.index
+        });
+      }
+    });
+
+    return [...phraseTokens, ...words].sort((a,b) => a.index - b.index);
+  }
+
+  extractMotifs(documents) {
+    const frequency = new Map();
+    const seededMotifs = new Map();
+
+    Object.entries(this.seededClusters).forEach(([cluster, words]) => {
+      words.forEach((word) => seededMotifs.set(normalizeToken(word), cluster));
+    });
+
+    documents.forEach((document) => {
+      document.tokens.forEach((token) => {
+        const current = frequency.get(token.normalized) || createMotifRecord(token.normalized);
+        current.count += 1;
+        current.documents.add(document.id);
+        current.positions.push({
+          documentId: document.id,
+          documentIndex: document.documentIndex,
+          tokenIndex: token.tokenIndex
+        });
+        frequency.set(token.normalized, current);
+      });
+    });
+
+    const emergent = Array.from(frequency.values())
+      .filter((record) => record.count >= 3 || record.documents.size > 1)
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 22);
+
+    const records = new Map();
+
+    seededMotifs.forEach((cluster, motif) => {
+      const record = frequency.get(motif) || createMotifRecord(motif);
+      records.set(motif, finalizeMotif(record, cluster, true, documents.length));
+    });
+
+    emergent.forEach((record) => {
+      if (!records.has(record.term)) {
+        records.set(record.term, finalizeMotif(record, "emergent", false, documents.length));
+      }
+    });
+
+    return Array.from(records.values()).sort((a, b) => {
+      if (b.score !== a.score) return b.score - a.score;
+      return b.term.length - a.term.length;
+    });
+  }
+
+  buildRelationshipGraph(documents, motifs) {
+    const motifByTerm = new Map(motifs.map((motif) => [motif.term, motif]));
+    const relationshipMap = new Map();
+    const windows = [];
+
+    documents.forEach((document) => {
+      const motifTokens = document.tokens.filter((token) => motifByTerm.has(token.normalized));
+      motifTokens.forEach((token, index) => {
+        const nearby = motifTokens.slice(index + 1, index + 10);
+        nearby.forEach((other) => {
+          const proximity = 1 / Math.max(1, Math.abs(other.tokenIndex - token.tokenIndex));
+          windows.push([token.normalized, other.normalized, document.id, proximity]);
+        });
+      });
+    });
+
+    windows.forEach(([source, target, documentId, proximity]) => {
+      if (source === target) return;
+      const key = [source, target].sort().join("::");
+      const relationship = relationshipMap.get(key) || {
+        id: key,
+        source,
+        target,
+        weight: 0,
+        coOccurrence: 0,
+        documents: new Set(),
+        proximityScore: 0,
+        contextualWeight: 0
+      };
+
+      relationship.coOccurrence += 1;
+      relationship.documents.add(documentId);
+      relationship.proximityScore += proximity;
+      relationshipMap.set(key, relationship);
+    });
+
+    return Array.from(relationshipMap.values()).map((relationship) => {
+      const source = motifByTerm.get(relationship.source);
+      const target = motifByTerm.get(relationship.target);
+      const sharedClusterBoost = source.cluster === target.cluster ? 1.35 : 0.82;
+      const recurrenceDensity = (source.recurrence + target.recurrence) / 2;
+      const documentSpan = relationship.documents.size;
+      const contextualWeight = relationship.proximityScore * sharedClusterBoost + documentSpan * 0.4;
+
+      return {
+        ...relationship,
+        documents: Array.from(relationship.documents),
+        recurrenceDensity,
+        contextualWeight,
+        weight: Number((contextualWeight + relationship.coOccurrence * 0.3).toFixed(3))
+      };
+    }).sort((a, b) => b.weight - a.weight);
+  }
+
+  buildTopology(motifs, graph) {
+    const relationsByMotif = new Map(motifs.map((motif) => [motif.term, []]));
+
+    graph.forEach((edge) => {
+      relationsByMotif.get(edge.source)?.push(edge);
+      relationsByMotif.get(edge.target)?.push(edge);
+    });
+
+    const clusterOrbitAngles = {
+      observer: 0,
+      governance: (Math.PI * 2) * 0.2,
+      labor: (Math.PI * 2) * 0.4,
+      divine: (Math.PI * 2) * 0.6,
+      emergent: (Math.PI * 2) * 0.8
+    };
+
+    const clusterCounts = {};
+    motifs.forEach(m => {
+      clusterCounts[m.cluster] = (clusterCounts[m.cluster] || 0) + 1;
+    });
+    const clusterIndexes = {};
+
+    return motifs.map((motif) => {
+      const relationships = relationsByMotif.get(motif.term) || [];
+      const gravity = relationships.reduce((total, edge) => total + edge.weight, 0);
+      
+      const clusterAngle = clusterOrbitAngles[motif.cluster] || 0;
+      const orbitRadius = 30; // Distance from center of map (in %)
+
+      const cIndex = clusterIndexes[motif.cluster] || 0;
+      clusterIndexes[motif.cluster] = cIndex + 1;
+      
+      const nodeSubAngle = (cIndex / Math.max(1, clusterCounts[motif.cluster])) * Math.PI * 2;
+      const nodeSubRadius = 5 + (20 - Math.min(15, gravity)); // Lower gravity pushes it further from its cluster center
+      
+      const centerX = 50 + Math.cos(clusterAngle) * orbitRadius;
+      const centerY = 50 + Math.sin(clusterAngle) * orbitRadius;
+      
+      const finalX = centerX + Math.cos(nodeSubAngle + (gravity * 0.5)) * nodeSubRadius;
+      const finalY = centerY + Math.sin(nodeSubAngle + (gravity * 0.5)) * nodeSubRadius;
+
+      return {
+        ...motif,
+        relationships,
+        gravity,
+        map: { x: finalX, y: finalY }
+      };
+    });
+  }
+}
+
+function createMotifRecord(term) {
+  return {
+    term,
+    count: 0,
+    documents: new Set(),
+    positions: []
+  };
+}
+
+function finalizeMotif(record, cluster, seeded, documentCount) {
+  const recurrence = record.documents.size / Math.max(1, documentCount);
+  return {
+    term: record.term,
+    cluster,
+    seeded,
+    count: record.count,
+    recurrence,
+    positions: record.positions,
+    documentIds: Array.from(record.documents),
+    score: record.count + recurrence * 4 + (seeded ? 2 : 0)
+  };
+}
+
+function normalizeToken(token) {
+  return token.toLowerCase().replace(/[^\p{L}\s'-]/gu, "").replace(/s$/, "").trim();
+}
+
+
+// --- atmosphere-renderer.js ---
+
+
+class AtmosphereRenderer {
+  constructor(canvas, state) {
+    this.canvas = canvas;
+    this.ctx = canvas.getContext("2d", { alpha: false });
+    this.state = state;
+    this.targetColor = CLUSTER_COLORS.dormant;
+    this.currentColor = [...CLUSTER_COLORS.dormant];
+    this.particles = [];
+    this.halos = [];
+    this.phase = 0;
+    this.frame = null;
+    this.weatherOpacity = 0.04;
+    this.particleOpacity = 0.1;
+    this.particleSpeedScale = 0.72;
+    this.haloOpacityScale = 0.65;
+    this.resize = this.resize.bind(this);
+  }
+
+  start() {
+    window.addEventListener("resize", this.resize, { passive: true });
+    this.resize();
+    this.updateByState();
+    this.draw();
+  }
+
+  setCluster(cluster) {
+    this.targetColor = CLUSTER_COLORS[cluster] || CLUSTER_COLORS.dormant;
+  }
+
+  updateByState() {
+    if (this.state.uiState === "passive") {
+      this.weatherOpacity = 0.032;
+      this.particleOpacity = 0.07;
+      this.particleSpeedScale = 0.62;
+      this.haloOpacityScale = 0.45;
+      return;
+    }
+
+    if (this.state.uiState === "exploration") {
+      this.weatherOpacity = 0.042;
+      this.particleOpacity = 0.1;
+      this.particleSpeedScale = 0.76;
+      this.haloOpacityScale = 0.58;
+      return;
+    }
+
+    const intensity = this.state.intensity || 0.62;
+    this.weatherOpacity = 0.048 + intensity * 0.02;
+    this.particleOpacity = 0.1 + intensity * 0.08;
+    this.particleSpeedScale = 0.8 + intensity * 0.25;
+    this.haloOpacityScale = 0.62 + intensity * 0.35;
+  }
+
+  updateHaloCache() {
+    const activeNodes = document.querySelectorAll(".ignition-source, .propagated");
+    this.halos = Array.from(activeNodes).map((node) => {
+      const rect = node.getBoundingClientRect();
+      const cluster = Array.from(node.classList)
+        .find((className) => className.startsWith("cluster-"))
+        ?.replace("cluster-", "") || "emergent";
+
+      const isIgnition = node.classList.contains("ignition-source");
+      return {
+        docY: rect.top + window.scrollY + rect.height / 2,
+        docX: rect.left + window.scrollX + rect.width / 2,
+        radius: isIgnition ? 300 : 150,
+        opacity: (isIgnition ? 0.08 : 0.03) * this.haloOpacityScale,
+        color: (CLUSTER_COLORS[cluster] || CLUSTER_COLORS.emergent).join(",")
+      };
+    });
+  }
+
+  resize() {
+    const pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+    this.canvas.width = Math.floor(window.innerWidth * pixelRatio);
+    this.canvas.height = Math.floor(window.innerHeight * pixelRatio);
+    this.canvas.style.width = `${window.innerWidth}px`;
+    this.canvas.style.height = `${window.innerHeight}px`;
+    this.ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    const count = Math.floor((window.innerWidth * window.innerHeight) / 35000);
+    this.particles = Array.from({ length: count }, () => new SemanticFragmentParticle(window.innerWidth, window.innerHeight));
+  }
+
+  draw() {
+    this.lerpColor();
+
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+    const colorStr = this.currentColor.map((value) => Math.round(value)).join(", ");
+
+    this.ctx.globalCompositeOperation = "source-over";
+    this.ctx.fillStyle = "#020202";
+    this.ctx.fillRect(0, 0, width, height);
+
+    this.phase += 0.0022;
+    this.drawWeather(width, height, colorStr);
+    this.drawHalos(width, height);
+    this.drawParticles(width, height, colorStr);
+
+    this.frame = requestAnimationFrame(() => this.draw());
+  }
+
+  lerpColor() {
+    this.currentColor[0] += (this.targetColor[0] - this.currentColor[0]) * 0.02;
+    this.currentColor[1] += (this.targetColor[1] - this.currentColor[1]) * 0.02;
+    this.currentColor[2] += (this.targetColor[2] - this.currentColor[2]) * 0.02;
+  }
+
+  drawWeather(width, height, colorStr) {
+    this.ctx.globalCompositeOperation = "screen";
+    const x = width / 2 + Math.sin(this.phase) * (width / 4);
+    const y = height / 2 + Math.cos(this.phase * 0.5) * (height / 4);
+    const gradient = this.ctx.createRadialGradient(x, y, 0, x, y, width);
+    gradient.addColorStop(0, `rgba(${colorStr}, ${this.weatherOpacity})`);
+    gradient.addColorStop(1, "rgba(0,0,0,0)");
+    this.ctx.fillStyle = gradient;
+    this.ctx.fillRect(0, 0, width, height);
+  }
+
+  drawHalos(width, height) {
+    const scrollY = window.scrollY;
+
+    this.halos.forEach((halo) => {
+      const screenY = halo.docY - scrollY;
+      if (screenY < -500 || screenY > height + 500) return;
+
+      const gradient = this.ctx.createRadialGradient(halo.docX, screenY, 0, halo.docX, screenY, halo.radius);
+      gradient.addColorStop(0, `rgba(${halo.color}, ${halo.opacity})`);
+      gradient.addColorStop(1, "rgba(0,0,0,0)");
+      this.ctx.fillStyle = gradient;
+      this.ctx.fillRect(halo.docX - halo.radius, screenY - halo.radius, halo.radius * 2, halo.radius * 2);
+    });
+  }
+
+  drawParticles(width, height, colorStr) {
+    this.ctx.globalCompositeOperation = "source-over";
+    this.ctx.textAlign = "center";
+    this.ctx.textBaseline = "middle";
+    this.particles.forEach((particle) => {
+      particle.update(width, height, this.state.activeCluster, this.particleSpeedScale, this.phase);
+      particle.draw(this.ctx, colorStr, this.particleOpacity);
+    });
+  }
+}
+
+const FRAGMENTS = ["0", "1", "0", "1", "null", "sys", "mem", "arc", "log", "drift", "trace", "void", "01", "10", "node", "seed"];
+
+class SemanticFragmentParticle {
+  constructor(width, height) {
+    this.x = Math.random() * width;
+    this.y = Math.random() * height;
+    this.baseVx = (Math.random() - 0.5) * 0.12;
+    this.baseVy = (Math.random() - 0.5) * 0.2 + 0.15;
+    this.vx = this.baseVx;
+    this.vy = this.baseVy;
+    
+    const depthRoll = Math.random();
+    if (depthRoll > 0.85) this.layer = "near";
+    else if (depthRoll > 0.4) this.layer = "mid";
+    else this.layer = "far";
+
+    this.char = FRAGMENTS[Math.floor(Math.random() * FRAGMENTS.length)];
+    this.phaseOffset = Math.random() * Math.PI * 2;
+    
+    if (this.layer === "near") {
+      this.size = Math.random() * 4 + 11;
+      this.maxOpacity = 0.45;
+      this.speedMult = 1.0;
+    } else if (this.layer === "mid") {
+      this.size = Math.random() * 3 + 7;
+      this.maxOpacity = 0.25;
+      this.speedMult = 0.5;
+    } else {
+      this.size = Math.random() * 2 + 4;
+      this.maxOpacity = 0.12;
+      this.speedMult = 0.25;
+    }
+    
+    this.currentOpacity = 0;
+  }
+
+  update(width, height, mode, speedScale = 1, phase = 0) {
+    let targetVx = this.baseVx;
+    let targetVy = this.baseVy;
+
+    if (mode === "labor") targetVy = Math.abs(this.baseVy) + 0.3;
+    else if (mode === "divine") targetVy = -Math.abs(this.baseVy) - 0.1;
+    else if (mode === "observer") {
+      targetVx = this.baseVx * 0.1;
+      targetVy = this.baseVy * 0.1;
+    } else if (mode === "governance" || mode === "emergent") {
+      targetVx = this.baseVx > 0 ? 0.2 : -0.2;
+      targetVy = this.baseVy * 0.4;
+    }
+
+    this.vx += (targetVx - this.vx) * 0.02;
+    this.vy += (targetVy - this.vy) * 0.02;
+    
+    const turbulence = Math.sin(phase * 0.5 + this.phaseOffset) * 0.05;
+    
+    this.x += (this.vx + turbulence) * speedScale * this.speedMult;
+    this.y += this.vy * speedScale * this.speedMult;
+
+    let fade = 1;
+    if (this.y < height * 0.15) fade = this.y / (height * 0.15);
+    else if (this.y > height * 0.85) fade = (height - this.y) / (height * 0.15);
+    if (fade < 0) fade = 0;
+    
+    this.currentOpacity = ((Math.sin(phase * 0.8 + this.phaseOffset) + 1) / 2) * this.maxOpacity * fade;
+
+    if (this.x < -30 || this.x > width + 30 || this.y < -30 || this.y > height + 30) {
+      this.x = Math.random() * width;
+      this.y = this.vy > 0 ? -20 : height + 20;
+      this.char = FRAGMENTS[Math.floor(Math.random() * FRAGMENTS.length)];
+    }
+  }
+
+  draw(ctx, colorStr, globalOpacity = 1) {
+    if (this.currentOpacity <= 0.01) return;
+    
+    ctx.font = `${this.size}px "Space Grotesk", sans-serif`;
+    
+    if (this.layer === "far") {
+      ctx.fillStyle = `rgba(${colorStr}, ${this.currentOpacity * globalOpacity * 0.5})`;
+      ctx.fillText(this.char, this.x - 1, this.y);
+      ctx.fillText(this.char, this.x + 1, this.y);
+    } else if (this.layer === "mid") {
+      ctx.fillStyle = `rgba(${colorStr}, ${this.currentOpacity * globalOpacity * 0.7})`;
+      ctx.fillText(this.char, this.x - 0.5, this.y);
+      ctx.fillText(this.char, this.x + 0.5, this.y);
+    }
+    
+    ctx.fillStyle = `rgba(${colorStr}, ${this.currentOpacity * globalOpacity})`;
+    ctx.fillText(this.char, this.x, this.y);
+  }
+}
+
+
+// --- archive-renderer.js ---
+
+
+
+class ArchiveRenderer {
+  constructor({ field, constellation, residuals, breadcrumbs, map, modes }) {
+    this.field = field;
+    this.constellation = constellation;
+    this.residuals = residuals;
+    this.breadcrumbs = breadcrumbs;
+    this.map = map;
+    this.modes = modes;
+    this.motifTerms = [];
+    this.motifLookup = new Map();
+  }
+
+  render(analysis, handlers) {
+    this.motifTerms = analysis.motifs.map((motif) => motif.term).sort((a, b) => b.length - a.length);
+    this.motifLookup = new Map(analysis.motifs.map((motif) => [motif.term, motif]));
+
+    this.renderModes(handlers);
+    this.renderConstellation(analysis.topology, handlers.onIgnite);
+    this.renderCognitionMap(analysis.topology, handlers.onIgnite);
+    this.renderSemanticField(analysis.documents, handlers.onIgnite);
+    this.renderResiduals(analysis.motifs);
+  }
+
+  renderModes({ modes, activeMode, onModeChange }) {
+    this.modeByLabel = new Map();
+    this.modes.replaceChildren();
+    modes.forEach((mode) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `mode-button${mode.id === activeMode ? " active" : ""}`;
+      button.textContent = mode.label;
+      button.dataset.mode = mode.id;
+      button.title = mode.description;
+      button.addEventListener("click", () => onModeChange(mode.id));
+      this.modes.appendChild(button);
+      this.modeByLabel.set(mode.label, mode.id);
+    });
+  }
+
+  setMode(activeMode) {
+    this.modes.querySelectorAll(".mode-button").forEach((button) => {
+      button.classList.toggle("active", button.dataset.mode === activeMode);
+    });
+  }
+
+  renderConstellation(topology, onIgnite) {
+    this.constellation.replaceChildren();
+    topology.forEach((motif) => {
+      const node = document.createElement("button");
+      node.type = "button";
+      node.className = `constellation-node node-${motif.term}`;
+      node.textContent = motif.term;
+      node.style.left = `${edgeBiasedRandom()}vw`;
+      node.style.top = `${10 + Math.random() * 200}vh`;
+      node.style.animationDelay = `${Math.random() * 10}s`;
+      node.addEventListener("click", (event) => {
+        event.stopPropagation();
+        onIgnite(motif.term);
+      });
+      this.constellation.appendChild(node);
+    });
+  }
+
+  renderCognitionMap(topology, onIgnite) {
+    this.map.replaceChildren();
+    
+    const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    svg.setAttribute("class", "map-circuitry");
+    svg.setAttribute("viewBox", "0 0 100 100");
+    svg.setAttribute("preserveAspectRatio", "none");
+    this.map.appendChild(svg);
+
+    const activeNodes = topology.slice(0, 36);
+    
+    activeNodes.forEach((motif) => {
+      motif.relationships.forEach((rel) => {
+        const target = activeNodes.find(n => n.term === rel.target || n.term === rel.source);
+        if (target && target !== motif) {
+          const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+          const cx = (motif.map.x + target.map.x) / 2 + (Math.random() - 0.5) * 15;
+          const cy = (motif.map.y + target.map.y) / 2 + (Math.random() - 0.5) * 15;
+          path.setAttribute("d", `M ${motif.map.x} ${motif.map.y} Q ${cx} ${cy} ${target.map.x} ${target.map.y}`);
+          path.dataset.source = motif.term;
+          path.dataset.target = target.term;
+          svg.appendChild(path);
+        }
+      });
+    });
+
+    activeNodes.forEach((motif) => {
+      const node = document.createElement("button");
+      node.type = "button";
+      node.className = `map-node cluster-${motif.cluster}`;
+      node.textContent = motif.term;
+      node.dataset.motif = motif.term;
+      node.style.left = `${clamp(motif.map.x, -5, 105)}%`;
+      node.style.top = `${clamp(motif.map.y, -5, 105)}%`;
+      node.style.setProperty("--node-size", `${0.32 + Math.min(0.46, motif.gravity / 24)}rem`);
+      node.style.animationDelay = `${Math.random() * -12}s`;
+      node.addEventListener("click", () => onIgnite(motif.term));
+      this.map.appendChild(node);
+    });
+  }
+
+  renderSemanticField(documents, onIgnite) {
+    this.field.replaceChildren();
+    let occurrenceIndex = 0;
+
+    documents.forEach((artifact) => {
+      const node = document.createElement("article");
+      node.className = "document-node";
+      node.dataset.documentId = artifact.id;
+
+      const meta = artifact.metadata || {};
+      const metaLine = [artifact.title, meta.author, meta.date, meta.time].filter(Boolean).join(" / ");
+      if (metaLine) {
+        const header = document.createElement("p");
+        header.className = "document-meta";
+        header.textContent = metaLine;
+        node.appendChild(header);
+      }
+
+      artifact.stanzas.forEach((stanzaText) => {
+        const stanza = document.createElement("div");
+        stanza.className = "stanza";
+        stanza.append(...this.renderLines(stanzaText, () => ++occurrenceIndex, onIgnite));
+        node.appendChild(stanza);
+      });
+
+      this.field.appendChild(node);
+    });
+  }
+
+  renderLines(stanzaText, nextIndex, onIgnite) {
+    const fragments = [];
+    stanzaText.split("\n").forEach((line, lineIndex, lines) => {
+      fragments.push(...this.renderTextLine(line, nextIndex, onIgnite));
+      if (lineIndex < lines.length - 1) fragments.push(document.createElement("br"));
+    });
+    return fragments;
+  }
+
+  renderTextLine(line, nextIndex, onIgnite) {
+    const fragment = document.createDocumentFragment();
+    if (!this.motifRegex && this.motifTerms.length > 0) {
+      const pattern = this.motifTerms.map(m => m.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
+      this.motifRegex = new RegExp(`\\b(${pattern})(?:s|d|ing)?\\b`, 'gi');
+    }
+
+    if (!this.motifRegex) {
+      fragment.appendChild(document.createTextNode(line));
+      return Array.from(fragment.childNodes);
+    }
+
+    let lastIndex = 0;
+    let match;
+    this.motifRegex.lastIndex = 0;
+    
+    while ((match = this.motifRegex.exec(line)) !== null) {
+      if (match.index > lastIndex) {
+        fragment.appendChild(document.createTextNode(line.slice(lastIndex, match.index)));
+      }
+      
+      const rawText = match[0];
+      const normalized = normalizeToken(match[1]);
+      const motifTerm = this.findMotif(normalized) || this.findMotif(normalizeToken(rawText));
+      
+      if (motifTerm) {
+        const motif = this.motifLookup.get(motifTerm);
+        const span = document.createElement("span");
+        span.className = `motif cluster-${motif.cluster}`;
+        span.dataset.motif = motifTerm;
+        span.dataset.index = String(nextIndex());
+        span.textContent = rawText;
+        span.addEventListener("click", (event) => {
+          event.stopPropagation();
+          onIgnite(motifTerm, span);
+        });
+        fragment.appendChild(span);
+      } else {
+        fragment.appendChild(document.createTextNode(rawText));
+      }
+      lastIndex = this.motifRegex.lastIndex;
+    }
+    
+    if (lastIndex < line.length) {
+      fragment.appendChild(document.createTextNode(line.slice(lastIndex)));
+    }
+
+    return Array.from(fragment.childNodes);
+  }
+
+  findMotif(normalized) {
+    return this.motifTerms.find((motif) => normalized === motif || normalized === `${motif}s` || normalized === `${motif}d`);
+  }
+
+  renderResiduals(motifs) {
+    this.residuals.replaceChildren();
+    const residuals = motifs.slice(-10).map((motif) => motif.term).concat(["drift", "fragment", "echo", "unresolved", "weather", "currents"]);
+    residuals.forEach((word, index) => {
+      const span = document.createElement("span");
+      span.className = "residual-fragment";
+      span.textContent = word;
+      span.style.animationDelay = `${index * 1.5}s`;
+      this.residuals.appendChild(span);
+    });
+  }
+
+  resetSemanticState() {
+    document.querySelectorAll(".motif.ignition-source, .motif.propagated").forEach((element) => {
+      element.classList.remove("ignition-source", "propagated");
+      element.classList.add("memory-scar");
+    });
+
+    document.querySelectorAll(".motif:not(.memory-scar)").forEach((element) => {
+      element.classList.add("dimmed");
+    });
+
+    this.map.querySelectorAll(".map-node").forEach((element) => element.classList.remove("active"));
+  }
+
+  clearSemanticState() {
+    document.querySelectorAll(".motif").forEach((element) => {
+      element.classList.remove("ignition-source", "propagated", "memory-scar", "dimmed", "hover-preview");
+    });
+    this.map.querySelectorAll(".map-node").forEach((element) => element.classList.remove("active", "hover-preview"));
+    this.breadcrumbs.classList.remove("visible");
+    this.breadcrumbs.replaceChildren();
+  }
+
+  updateBreadcrumbs(path, motif, cluster) {
+    this.breadcrumbs.classList.add("visible");
+    this.breadcrumbs.replaceChildren();
+
+    path.forEach((nodeMotif, index) => {
+      if (index > 0) {
+        const separator = document.createElement("span");
+        separator.className = "breadcrumb-separator";
+        separator.textContent = "->";
+        this.breadcrumbs.appendChild(separator);
+      }
+
+      const node = document.createElement("span");
+      node.className = "breadcrumb-node";
+      const nodeCluster = nodeMotif === motif ? cluster : this.motifLookup.get(nodeMotif)?.cluster;
+      node.style.color = `rgb(${(CLUSTER_COLORS[nodeCluster] || CLUSTER_COLORS.emergent).join(",")})`;
+      node.textContent = nodeMotif;
+      this.breadcrumbs.appendChild(node);
+    });
+  }
+
+  markActiveMapNode(motif) {
+    this.map.querySelectorAll(".map-node").forEach((element) => {
+      element.classList.toggle("active", element.dataset.motif === motif);
+    });
+    this.map.querySelectorAll(".map-circuitry path").forEach((path) => {
+      if (!motif) {
+        path.classList.remove("active");
+      } else if (path.dataset.source === motif || path.dataset.target === motif) {
+        path.classList.add("active");
+      } else {
+        path.classList.remove("active");
+      }
+    });
+  }
+}
+
+function edgeBiasedRandom() {
+  let position = Math.random() * 95;
+  if (position > 20 && position < 80) {
+    position = Math.random() > 0.5 ? position - 35 : position + 35;
+  }
+  return clamp(position, 2, 96);
+}
+
+function clamp(value, min, max) {
+  return Math.max(min, Math.min(max, value));
+}
+
+
+// --- traversal-engine.js ---
+class TraversalEngine {
+  constructor(analysis) {
+    this.analysis = analysis;
+    this.mode = "associative";
+    this.relationshipIndex = this.indexRelationships(analysis.graph);
+  }
+
+  setMode(mode) {
+    this.mode = mode;
+  }
+
+  createTraversal(targetMotif, occurrences, sourceNode) {
+    const motif = this.analysis.topology.find((item) => item.term === targetMotif);
+    const related = this.rankRelatedMotifs(targetMotif, motif);
+    const nextNode = this.selectNextNode(targetMotif, occurrences, sourceNode, related);
+
+    return {
+      targetMotif,
+      motif,
+      related,
+      nextNode,
+      mode: this.mode
+    };
+  }
+
+  rankRelatedMotifs(targetMotif, motif) {
+    const relationships = this.relationshipIndex.get(targetMotif) || [];
+
+    return relationships.map((edge) => {
+      const other = edge.source === targetMotif ? edge.target : edge.source;
+      const otherMotif = this.analysis.topology.find((item) => item.term === other);
+      return {
+        motif: other,
+        cluster: otherMotif?.cluster || "emergent",
+        weight: this.scoreEdge(edge, motif, otherMotif)
+      };
+    }).sort((a, b) => b.weight - a.weight);
+  }
+
+  scoreEdge(edge, sourceMotif, targetMotif) {
+    if (!targetMotif) return edge.weight;
+
+    const density = targetMotif.count + targetMotif.gravity;
+    const temporalDistance = Math.abs((targetMotif.positions[0]?.documentIndex || 0) - (sourceMotif?.positions[0]?.documentIndex || 0));
+
+    if (this.mode === "density") return edge.weight + density * 0.35;
+    if (this.mode === "contradiction") return edge.weight + (sourceMotif?.cluster === targetMotif.cluster ? -2 : 3);
+    if (this.mode === "emotional") return edge.weight + emotionalCharge(targetMotif.term);
+    if (this.mode === "temporal") return edge.weight + Math.max(0, 4 - temporalDistance);
+    if (this.mode === "recursive") return edge.weight + targetMotif.recurrence * 8;
+
+    return edge.weight;
+  }
+
+  selectNextNode(targetMotif, occurrences, sourceNode, related) {
+    if (this.mode !== "associative" && related.length > 0) {
+      const relatedOccurrence = document.querySelector(`.motif[data-motif="${related[0].motif}"]`);
+      if (relatedOccurrence) return relatedOccurrence;
+    }
+
+    if (!occurrences.length) return null;
+
+    const sourceY = sourceNode
+      ? sourceNode.getBoundingClientRect().top + window.scrollY
+      : window.scrollY;
+
+    const lowerNode = occurrences.find((node) => {
+      const y = node.getBoundingClientRect().top + window.scrollY;
+      return y > sourceY + window.innerHeight * 0.5;
+    });
+
+    if (lowerNode) return lowerNode;
+
+    return occurrences.find((node) => {
+      const y = node.getBoundingClientRect().top + window.scrollY;
+      return Math.abs(y - sourceY) > window.innerHeight * 0.5;
+    }) || null;
+  }
+
+  indexRelationships(graph) {
+    const index = new Map();
+    graph.forEach((edge) => {
+      if (!index.has(edge.source)) index.set(edge.source, []);
+      if (!index.has(edge.target)) index.set(edge.target, []);
+      index.get(edge.source).push(edge);
+      index.get(edge.target).push(edge);
+    });
+    return index;
+  }
+}
+
+function emotionalCharge(term) {
+  const charged = ["abuse", "victim", "terror", "horror", "violence", "divine", "reality", "freedom", "hope", "war"];
+  return charged.some((word) => term.includes(word)) ? 4 : 0;
+}
+
+
+// --- app.js ---
+
+
+
+
+
+
+
+
+class SemanticCognitionInterface {
+  constructor() {
+    this.loader = new DatasetLoader();
+    this.engine = new SemanticEngine();
+    this.memory = new SemanticMemory();
+    this.state = new SemanticState();
+    this.analysis = null;
+    this.traversal = null;
+    this.propagationTimers = [];
+    this.lastTraversal = null;
+    this.renderer = new ArchiveRenderer({
+      field: document.getElementById("semantic-field"),
+      constellation: document.getElementById("semantic-constellation"),
+      residuals: document.getElementById("residual-motifs"),
+      breadcrumbs: document.getElementById("semantic-breadcrumbs"),
+      map: document.getElementById("relationship-map"),
+      modes: document.getElementById("mode-selector")
+    });
+    this.atmosphere = new AtmosphereRenderer(document.getElementById("bg-canvas"), this.state);
+    this.rail = this.bindRailElements();
+  }
+
+  bindRailElements() {
+    return {
+      root: document.getElementById("semantic-rail"),
+      state: document.getElementById("rail-state"),
+      motif: document.getElementById("rail-motif"),
+      mode: document.getElementById("rail-mode"),
+      intensity: document.getElementById("rail-intensity"),
+      drift: document.getElementById("rail-drift-toggle"),
+      continueButton: document.getElementById("rail-continue"),
+      resetButton: document.getElementById("rail-reset"),
+      mapButton: document.getElementById("rail-map")
+    };
+  }
+
+  async start() {
+    this.bindIntro();
+    this.bindParallax();
+    this.bindRailActions();
+    this.bindExplorationSignals();
+    this.atmosphere.start();
+
+    const dataset = await this.loader.loadPoetryArchive("./poems.txt");
+    this.analysis = this.engine.ingest(dataset);
+    this.traversal = new TraversalEngine(this.analysis);
+
+    this.renderer.render(this.analysis, {
+      modes: TRAVERSAL_MODES,
+      activeMode: this.state.mode,
+      onModeChange: (mode) => this.setTraversalMode(mode),
+      onIgnite: (motif, node) => this.igniteMotif(motif, node)
+    });
+
+    this.bindExplorationSignals();
+    this.syncRail();
+    document.body.classList.add("ui-passive");
+    window.addEventListener("resize", () => this.atmosphere.updateHaloCache(), { passive: true });
+  }
+
+  bindIntro() {
+    const overlay = document.getElementById("intro-overlay");
+    const open = document.getElementById("intro-glyph");
+    const close = document.getElementById("intro-dismiss");
+    const dontShow = document.getElementById("intro-dont-show");
+
+    if (localStorage.getItem("semanticArchiveIntroDismissed") === "true") {
+      overlay.classList.remove("visible");
+      this.setUiState("passive");
+    }
+
+    const dismiss = () => {
+      if (dontShow && dontShow.checked) {
+        localStorage.setItem("semanticArchiveIntroDismissed", "true");
+      }
+      overlay.classList.remove("visible");
+      this.setUiState("passive");
+    };
+    const reveal = () => overlay.classList.add("visible");
+
+    close.addEventListener("click", dismiss);
+    open.addEventListener("click", reveal);
+    overlay.addEventListener("click", (event) => {
+      if (event.target === overlay) dismiss();
+    });
+    window.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") dismiss();
+    });
+  }
+
+  bindParallax() {
+    const constellation = document.getElementById("semantic-constellation");
+    let ticking = false;
+    window.addEventListener("scroll", () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        constellation.style.transform = `translateY(${window.scrollY * 0.14}px)`;
+        ticking = false;
+      });
+    }, { passive: true });
+  }
+
+  bindRailActions() {
+    this.rail.intensity.addEventListener("input", () => {
+      this.state.intensity = Number(this.rail.intensity.value) / 100;
+      this.atmosphere.updateByState();
+    });
+
+    this.rail.drift.addEventListener("click", () => {
+      this.state.driftEnabled = !this.state.driftEnabled;
+      this.rail.drift.setAttribute("aria-pressed", String(this.state.driftEnabled));
+      this.rail.drift.textContent = this.state.driftEnabled ? "auto" : "assisted";
+      if (this.state.driftEnabled && this.state.pendingDriftNode) {
+        this.executeDrift(this.state.pendingDriftNode);
+      }
+      this.syncRail();
+    });
+
+    this.rail.continueButton.addEventListener("click", () => {
+      if (!this.state.pendingDriftNode) return;
+      this.executeDrift(this.state.pendingDriftNode);
+    });
+
+    this.rail.resetButton.addEventListener("click", () => this.resetField());
+    this.rail.mapButton.addEventListener("click", () => {
+      document.getElementById("cognition-map")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
+  bindExplorationSignals() {
+    document.querySelectorAll(".motif").forEach((node) => {
+      node.addEventListener("mouseenter", () => this.previewMotif(node.dataset.motif));
+      node.addEventListener("focus", () => this.previewMotif(node.dataset.motif));
+    });
+
+    document.querySelectorAll(".map-node, .constellation-node").forEach((node) => {
+      node.addEventListener("mouseenter", () => this.previewMotif(node.dataset.motif || node.textContent?.trim()));
+      node.addEventListener("focus", () => this.previewMotif(node.dataset.motif || node.textContent?.trim()));
+    });
+
+    document.addEventListener("mouseleave", () => {
+      if (!this.state.isTraversing) this.setUiState("passive");
+    });
+  }
+
+  setTraversalMode(mode) {
+    this.state.mode = mode;
+    this.traversal.setMode(mode);
+    this.renderer.setMode(mode);
+    this.syncRail();
+  }
+
+  previewMotif(motif) {
+    if (!motif || this.state.isTraversing) return;
+    const motifMeta = this.analysis?.topology.find((item) => item.term === motif);
+    this.applyPreviewHighlights(motif);
+    this.state.setExploration(motif, motifMeta?.cluster || "emergent");
+    this.atmosphere.setCluster(this.state.activeCluster);
+    this.atmosphere.updateByState();
+    this.setUiState("exploration");
+    this.syncRail();
+  }
+
+  setUiState(nextState) {
+    if (nextState === "passive") this.state.setPassive();
+    else this.state.uiState = nextState;
+
+    if (this.state.uiState === "passive" && !this.state.activeMotif) {
+      this.applyPreviewHighlights("__none__");
+    }
+
+    document.body.classList.remove("ui-passive", "ui-exploration", "ui-traversal");
+    document.body.classList.add(`ui-${this.state.uiState}`);
+    this.atmosphere.updateByState();
+    this.syncRail();
+  }
+
+  applyPreviewHighlights(motif) {
+    document.querySelectorAll(".motif.hover-preview, .map-node.hover-preview").forEach((node) => {
+      node.classList.remove("hover-preview");
+    });
+    document.querySelectorAll(`.motif[data-motif="${motif}"], .map-node[data-motif="${motif}"]`).forEach((node) => {
+      node.classList.add("hover-preview");
+    });
+  }
+
+  igniteMotif(targetMotif, specificNode = null) {
+    if (this.state.isTraversing) return;
+    this.state.isTraversing = true;
+
+    const allInstances = Array.from(document.querySelectorAll(`.motif[data-motif="${targetMotif}"]`));
+    if (allInstances.length === 0) {
+      this.state.isTraversing = false;
+      return;
+    }
+
+    this.clearPropagationTimers();
+
+    const explicitIndex = specificNode ? allInstances.indexOf(specificNode) : null;
+    const index = this.memory.nextOccurrence(targetMotif, allInstances.length, explicitIndex);
+    const ignitionNode = specificNode || allInstances[index] || allInstances[0];
+    const motif = this.analysis.topology.find((item) => item.term === targetMotif);
+    const cluster = motif?.cluster || "emergent";
+    const traversal = this.traversal.createTraversal(targetMotif, allInstances, ignitionNode);
+    this.lastTraversal = traversal;
+
+    this.renderer.resetSemanticState();
+    this.memory.remember(targetMotif);
+    this.state.activate({ motif: targetMotif, cluster, mode: this.state.mode });
+    this.renderer.updateBreadcrumbs(this.memory.path, targetMotif, cluster);
+    this.renderer.markActiveMapNode(targetMotif);
+    this.atmosphere.setCluster(cluster);
+    this.setUiState("traversal");
+
+    ignitionNode.classList.remove("dimmed", "memory-scar");
+    ignitionNode.classList.add("ignition-source");
+    ignitionNode.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    this.propagateSemanticState(cluster, traversal, ignitionNode);
+
+    this.state.pendingDriftNode = traversal.nextNode;
+    if (this.state.driftEnabled && traversal.nextNode) {
+      this.executeDrift(traversal.nextNode);
+    }
+
+    this.state.isTraversing = false;
+    this.syncRail();
+  }
+
+  propagateSemanticState(cluster, traversal, ignitionNode) {
+    const ignitionY = ignitionNode.getBoundingClientRect().top + window.scrollY;
+    const documentHeight = document.documentElement.scrollHeight;
+    const relatedTerms = new Set(traversal.related.slice(0, 6).map((item) => item.motif));
+    const propagationTargets = Array.from(document.querySelectorAll(".motif:not(.ignition-source)")).filter((node) => {
+      return node.classList.contains(`cluster-${cluster}`) || relatedTerms.has(node.dataset.motif);
+    });
+
+    const baseDuration = Math.max(680, 2400 * this.state.intensity);
+    propagationTargets.forEach((node) => {
+      const nodeY = node.getBoundingClientRect().top + window.scrollY;
+      const distance = Math.abs(nodeY - ignitionY);
+      const semanticBoost = relatedTerms.has(node.dataset.motif) ? 0.48 : 0.78;
+      const delay = (distance / documentHeight) * baseDuration * semanticBoost + Math.random() * 120;
+
+      const timer = window.setTimeout(() => {
+        node.classList.remove("dimmed", "memory-scar");
+        node.classList.add("propagated");
+        this.atmosphere.updateHaloCache();
+      }, delay);
+      this.propagationTimers.push(timer);
+    });
+
+    this.atmosphere.updateHaloCache();
+  }
+
+  executeDrift(nextNode) {
+    if (!nextNode) return;
+    this.state.pendingDriftNode = null;
+    const targetY = nextNode.getBoundingClientRect().top + window.scrollY - window.innerHeight / 2.7;
+    smoothScrollTo(targetY, Math.max(1300, 3200 * this.state.intensity));
+    this.syncRail();
+  }
+
+  resetField() {
+    this.clearPropagationTimers();
+    this.state.activeMotif = null;
+    this.state.activeCluster = "dormant";
+    this.state.pendingDriftNode = null;
+    this.lastTraversal = null;
+    this.memory.path = [];
+    this.renderer.clearSemanticState();
+    this.renderer.markActiveMapNode(null);
+    this.atmosphere.setCluster("dormant");
+    this.atmosphere.updateHaloCache();
+    this.applyPreviewHighlights("__none__");
+    this.setUiState("passive");
+    this.syncRail();
+  }
+
+  clearPropagationTimers() {
+    this.propagationTimers.forEach((timer) => window.clearTimeout(timer));
+    this.propagationTimers = [];
+  }
+
+  syncRail() {
+    const modeLabel = TRAVERSAL_MODES.find((mode) => mode.id === this.state.mode)?.label || "associative drift";
+    this.rail.state.textContent = this.state.uiState;
+    this.rail.motif.textContent = this.state.activeMotif || "none";
+    this.rail.mode.textContent = modeLabel.toLowerCase();
+    this.rail.continueButton.disabled = !this.state.pendingDriftNode;
+    this.rail.root.classList.toggle("has-pending-drift", Boolean(this.state.pendingDriftNode));
+  }
+}
+
+function smoothScrollTo(targetPosition, duration = 1800) {
+  const startPosition = window.scrollY;
+  const distance = targetPosition - startPosition;
+  let startTime = null;
+
+  const easeOutCubic = (time, start, change, total) => {
+    const t = time / total - 1;
+    return change * (t * t * t + 1) + start;
+  };
+
+  function animation(currentTime) {
+    if (startTime === null) startTime = currentTime;
+    const elapsed = currentTime - startTime;
+    window.scrollTo(0, easeOutCubic(Math.min(elapsed, duration), startPosition, distance, duration));
+    if (elapsed < duration) requestAnimationFrame(animation);
+  }
+
+  requestAnimationFrame(animation);
+}
+
+window.addEventListener("DOMContentLoaded", () => {
+  const app = new SemanticCognitionInterface();
+  app.start();
+});
+
+
+
+</script>
+</body>
+</html>
