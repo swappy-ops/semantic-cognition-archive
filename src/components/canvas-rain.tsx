@@ -43,24 +43,30 @@ class SemanticFragmentParticle {
     this.currentOpacity = 0;
   }
 
-  update(width: number, height: number, mode: string, speedScale = 1, phase = 0) {
+  update(width: number, height: number, mode: string, speedScale = 1, phase = 0, cognitiveLoad = 0) {
     let targetVx = this.baseVx;
     let targetVy = this.baseVy;
 
-    if (mode === "labor") targetVy = Math.abs(this.baseVy) + 0.3;
-    else if (mode === "divine") targetVy = -Math.abs(this.baseVy) - 0.1;
+    // Cognitive load increases baseline speed and chaotic velocity
+    const pressureMultiplier = 1 + (cognitiveLoad * 2.5);
+    targetVx *= pressureMultiplier;
+    targetVy *= pressureMultiplier;
+
+    if (mode === "labor") targetVy = (Math.abs(this.baseVy) + 0.3) * pressureMultiplier;
+    else if (mode === "divine") targetVy = (-Math.abs(this.baseVy) - 0.1) * pressureMultiplier;
     else if (mode === "observer") {
       targetVx = this.baseVx * 0.1;
       targetVy = this.baseVy * 0.1;
     } else if (mode === "governance" || mode === "emergent") {
-      targetVx = this.baseVx > 0 ? 0.2 : -0.2;
-      targetVy = this.baseVy * 0.4;
+      targetVx = (this.baseVx > 0 ? 0.2 : -0.2) * pressureMultiplier;
+      targetVy = this.baseVy * 0.4 * pressureMultiplier;
     }
 
     this.vx += (targetVx - this.vx) * 0.02;
     this.vy += (targetVy - this.vy) * 0.02;
     
-    const turbulence = Math.sin(phase * 0.5 + this.phaseOffset) * 0.05;
+    // Cognitive load drastically increases turbulence (the "dancing screen")
+    const turbulence = Math.sin(phase * (0.5 + cognitiveLoad) + this.phaseOffset) * (0.05 + cognitiveLoad * 0.15);
     
     this.x += (this.vx + turbulence) * speedScale * this.speedMult;
     this.y += this.vy * speedScale * this.speedMult;
@@ -99,7 +105,7 @@ class SemanticFragmentParticle {
   }
 }
 
-export function CanvasRain({ activeCluster = "dormant" }: { activeCluster?: string }) {
+export function CanvasRain({ activeCluster = "dormant", cognitiveLoad = 0 }: { activeCluster?: string, cognitiveLoad?: number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -142,13 +148,15 @@ export function CanvasRain({ activeCluster = "dormant" }: { activeCluster?: stri
       ctx.fillStyle = "#020202";
       ctx.fillRect(0, 0, width, height);
 
-      phase += 0.0022;
+      // Cognitive load accelerates the global phase shift
+      phase += 0.0022 + (cognitiveLoad * 0.005);
 
       ctx.globalCompositeOperation = "screen";
       const x = width / 2 + Math.sin(phase) * (width / 4);
       const y = height / 2 + Math.cos(phase * 0.5) * (height / 4);
       const gradient = ctx.createRadialGradient(x, y, 0, x, y, width);
-      gradient.addColorStop(0, `rgba(${colorStr}, 0.06)`);
+      // Increased glow pressure with cognitive load
+      gradient.addColorStop(0, `rgba(${colorStr}, ${0.06 + cognitiveLoad * 0.08})`);
       gradient.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = gradient;
       ctx.fillRect(0, 0, width, height);
@@ -157,7 +165,7 @@ export function CanvasRain({ activeCluster = "dormant" }: { activeCluster?: stri
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       particles.forEach((particle) => {
-        particle.update(width, height, activeCluster, 1, phase);
+        particle.update(width, height, activeCluster, 1, phase, cognitiveLoad);
         particle.draw(ctx, colorStr, 1);
       });
 

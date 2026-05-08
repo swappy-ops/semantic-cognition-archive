@@ -13,6 +13,9 @@ export function ArchiveInteractiveField() {
   const [activeCluster, setActiveCluster] = useState<string>("dormant");
   const [path, setPath] = useState<string[]>([]);
   const [hoveredMotif, setHoveredMotif] = useState<string | null>(null);
+  const [visitedMotifs, setVisitedMotifs] = useState<Set<string>>(new Set());
+  const [cognitiveLoad, setCognitiveLoad] = useState<number>(0);
+  const [biasCluster, setBiasCluster] = useState<string | null>(null);
 
   useEffect(() => {
     setAnalysis(engine.analyze(engine.parseDataset()));
@@ -26,32 +29,50 @@ export function ArchiveInteractiveField() {
 
     setActiveMotif(motif);
     setActiveCluster(record.cluster);
+    
     setPath((prev) => [...prev, motif]);
+    setVisitedMotifs((prev) => new Set(prev).add(motif));
+
+    if (biasCluster === record.cluster) {
+      setCognitiveLoad((prev) => Math.min(prev + 0.15, 1));
+    } else {
+      setBiasCluster(record.cluster);
+      setCognitiveLoad((prev) => Math.max(0.2, prev * 0.5));
+    }
   };
 
   const handleReset = () => {
     setActiveMotif(null);
     setActiveCluster("dormant");
     setPath([]);
+    setCognitiveLoad((prev) => Math.max(0, prev - 0.5));
+    // Notice we do NOT clear visitedMotifs. Memory is lived, not archived.
   };
 
   return (
-    <div className="relative min-h-screen text-[#ebebe3]">
-      <CanvasRain activeCluster={activeCluster} />
+    <div className="relative min-h-screen text-[#ebebe3] transition-all duration-1000"
+         style={{ filter: `saturate(${1 + cognitiveLoad * 0.5}) contrast(${1 + cognitiveLoad * 0.2})` }}>
+      <CanvasRain activeCluster={activeCluster} cognitiveLoad={cognitiveLoad} />
 
       {/* Semantic Rail */}
       <aside className="fixed right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-6 text-[0.6rem] uppercase tracking-widest text-[#77746d]/60 font-mono">
         <div>
           <span className="block mb-1 opacity-50">state</span>
-          <span className="text-[#ebebe3]/80">{activeMotif ? "traversal" : "passive"}</span>
+          <span className="text-[#ebebe3]/80">{activeMotif ? "destabilized" : "contemplative"}</span>
         </div>
         <div>
-          <span className="block mb-1 opacity-50">motif</span>
-          <span className="text-[#ebebe3]/80">{activeMotif || "none"}</span>
+          <span className="block mb-1 opacity-50">bias</span>
+          <span className="text-[#ebebe3]/80" style={{ color: biasCluster ? `rgb(${CLUSTER_COLORS[biasCluster]?.join(',')})` : "" }}>
+            {biasCluster || "unformed"}
+          </span>
         </div>
         <div>
-          <span className="block mb-1 opacity-50">depth</span>
-          <span className="text-[#ebebe3]/80">{path.length} nodes</span>
+          <span className="block mb-1 opacity-50">cognitive load</span>
+          <span className="text-[#ebebe3]/80">{(cognitiveLoad * 100).toFixed(0)}%</span>
+        </div>
+        <div>
+          <span className="block mb-1 opacity-50">memory scars</span>
+          <span className="text-[#ebebe3]/80">{visitedMotifs.size} points</span>
         </div>
       </aside>
 
@@ -82,6 +103,8 @@ export function ArchiveInteractiveField() {
                       motifs={analysis.motifs} 
                       activeMotif={activeMotif} 
                       hoveredMotif={hoveredMotif}
+                      visitedMotifs={visitedMotifs}
+                      cognitiveLoad={cognitiveLoad}
                       onIgnite={handleIgnite} 
                       onHover={setHoveredMotif}
                     />
@@ -137,7 +160,7 @@ export function ArchiveInteractiveField() {
   );
 }
 
-function TextLine({ text, motifs, activeMotif, hoveredMotif, onIgnite, onHover }: any) {
+function TextLine({ text, motifs, activeMotif, hoveredMotif, visitedMotifs, cognitiveLoad, onIgnite, onHover }: any) {
   const motifRegex = useMemo(() => {
     const terms = motifs.map((m: any) => m.term.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')).join('|');
     return new RegExp(`\\b(${terms})(?:s|d|ing)?\\b`, 'gi');
@@ -176,7 +199,21 @@ function TextLine({ text, motifs, activeMotif, hoveredMotif, onIgnite, onHover }
         
         const isActive = activeMotif === part.term;
         const isHovered = hoveredMotif === part.term;
+        const isVisited = visitedMotifs.has(part.term);
         const shouldDim = activeMotif && !isActive;
+        
+        // Nearby thoughts affect each other
+        const isRelated = hoveredMotif && motifs.find((m:any) => m.term === hoveredMotif)?.relationships.some((r:any) => r.target === part.term || r.source === part.term);
+
+        let dynamicStyle: any = {};
+        if (isActive) {
+          dynamicStyle.color = `rgb(${CLUSTER_COLORS[part.cluster!]?.join(',') || '255,255,255'})`;
+          dynamicStyle.textShadow = `0 0 ${10 + cognitiveLoad * 20}px rgba(${CLUSTER_COLORS[part.cluster!]?.join(',')}, ${0.5 + cognitiveLoad * 0.5})`;
+        } else if (isVisited) {
+          // Memory scars persist subtly
+          dynamicStyle.color = `rgba(${CLUSTER_COLORS[part.cluster!]?.join(',')}, 0.45)`;
+          dynamicStyle.textShadow = `0 0 4px rgba(${CLUSTER_COLORS[part.cluster!]?.join(',')}, 0.2)`;
+        }
 
         return (
           <button
@@ -185,12 +222,13 @@ function TextLine({ text, motifs, activeMotif, hoveredMotif, onIgnite, onHover }
             onMouseEnter={() => onHover(part.term)}
             onMouseLeave={() => onHover(null)}
             className={`
-              inline-block transition-all duration-500 cursor-pointer px-1 rounded-sm
-              ${isActive ? 'bg-white/10 text-white shadow-[0_0_15px_rgba(255,255,255,0.1)] scale-105' : ''}
+              inline-block transition-all duration-[800ms] cursor-pointer px-1 rounded-sm
+              ${isActive ? 'bg-white/5 text-white scale-105' : ''}
               ${isHovered && !isActive ? 'bg-white/5 text-white' : ''}
-              ${shouldDim ? 'opacity-30' : 'opacity-100'}
+              ${isRelated && !isActive ? 'opacity-80 scale-[1.02]' : ''}
+              ${shouldDim && !isVisited ? 'opacity-20 blur-[1px]' : (shouldDim && isVisited ? 'opacity-40' : 'opacity-100')}
             `}
-            style={isActive ? { color: `rgb(${CLUSTER_COLORS[part.cluster!]?.join(',') || '255,255,255'})` } : {}}
+            style={dynamicStyle}
           >
             {part.content}
           </button>

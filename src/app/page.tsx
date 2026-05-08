@@ -12,11 +12,11 @@ export default function Home() {
             HCI Research Artifact // 001
           </p>
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-serif tracking-tight leading-[1.1]">
-            Rapid Associative Cognition <br />
-            <span className="text-[#77746d] italic">Through Poetic Structure</span>
+            Semantic Cognition <br />
+            <span className="text-[#77746d] italic">The Observatory</span>
           </h1>
           <p className="text-sm md:text-base text-[#ebebe3]/60 max-w-xl mx-auto leading-relaxed">
-            An exploratory semantic interaction environment investigating probabilistic semantic traversal, recursive systems-thinking, and nonlinear knowledge architectures.
+            "I don't remember things. I live them. That overexposure to emotions causes an aversion to a performance without purpose."
           </p>
         </div>
         <div className="absolute bottom-12 flex flex-col items-center gap-4 animate-pulse opacity-50">
@@ -25,30 +25,50 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Research Premise & Methodology */}
+      {/* Research Premise & Foreword */}
       <section className="py-32 px-6 bg-black/50 border-y border-white/5 relative z-10">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-24">
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 text-[#77746d] mb-8">
-              <BrainCircuit className="w-5 h-5" />
-              <h2 className="text-[0.65rem] uppercase tracking-[0.2em] font-mono">Research Premise</h2>
+        <div className="max-w-4xl mx-auto space-y-24">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-24">
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 text-[#77746d] mb-8">
+                <BrainCircuit className="w-5 h-5" />
+                <h2 className="text-[0.65rem] uppercase tracking-[0.2em] font-mono">The Premise</h2>
+              </div>
+              <h3 className="text-2xl font-serif leading-snug">Thoughts Arriving in Pairs</h3>
+              <div className="text-sm text-[#ebebe3]/70 leading-loose space-y-4">
+                <p>
+                  Poems are themselves a very final medium. My exploration of such intends to balance the technical accuracy of the levels that the emotional experience—the poetry—intends to invoke. Cognitively heavy words are used here to maximize the bridge between the emotional and technical parts of this showcase.
+                </p>
+                <p>
+                  Every part of thinking is connected. You can't think about one thing without believing in something around it. Every thought we have doesn't exist alone, that itself says a lot about the need for societal adjourning, that even our thoughts arrive in pairs.
+                </p>
+              </div>
             </div>
-            <h3 className="text-2xl font-serif leading-snug">Nonlinear Cognition & Semantic Traversal</h3>
-            <p className="text-sm text-[#ebebe3]/70 leading-loose">
-              This artifact treats poetry not as static literature, but as a probabilistic semantic container. By identifying bi-grams, tri-grams, and semantic compounds, the system builds an interactive, atmospheric topology where users navigate through conceptual associations rather than linear narrative.
-            </p>
+            
+            <div className="space-y-6">
+              <div className="flex items-center gap-3 text-[#77746d] mb-8">
+                <Orbit className="w-5 h-5" />
+                <h2 className="text-[0.65rem] uppercase tracking-[0.2em] font-mono">The Interaction</h2>
+              </div>
+              <h3 className="text-2xl font-serif leading-snug">The Canvas of Bias</h3>
+              <div className="text-sm text-[#ebebe3]/70 leading-loose space-y-4">
+                <p>
+                  Click on words that sound similar and it increases the effects, the cognitive load, the different ways the screen dances. The text glows, everything shifts when a bias enters your mind. The need isn't to just recognize said bias, it is to understand and let it colour your canvas.
+                </p>
+                <p>
+                  Let it expand your questioning but don't let it constrain your beliefs, because analysis of beliefs is the foundational rock of questioning. Do enjoy the observatory.
+                </p>
+              </div>
+            </div>
           </div>
           
-          <div className="space-y-6">
-            <div className="flex items-center gap-3 text-[#77746d] mb-8">
-              <Orbit className="w-5 h-5" />
-              <h2 className="text-[0.65rem] uppercase tracking-[0.2em] font-mono">Methodology</h2>
-            </div>
-            <h3 className="text-2xl font-serif leading-snug">Recursive Pattern Mapping</h3>
-            <p className="text-sm text-[#ebebe3]/70 leading-loose">
-              The interaction relies on an autonomous semantic engine that ingests plain text, filters stop words, and recursively clusters terms based on gravity and proximity. These clusters form a dynamic, Rupee-inspired spatial sigil (the Cognition Map) connecting macro concepts like Governance, Labor, and Divinity.
+          <div className="border-t border-white/10 pt-12 flex justify-end">
+            <p className="text-[0.65rem] uppercase tracking-widest text-[#77746d] font-mono">
+              2200 07.05.26 — 0210 08.05.26
             </p>
           </div>
+
         </div>
       </section>
 
