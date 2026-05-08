@@ -28,7 +28,7 @@ This project is a result of understanding that very need and explaining how it i
 So, basically it shows how every part of thinking is connected, you cant think about 1 thing without believing in somethings around it. 
 
 Every thought we have doesn't exist alone, that itself says a lot about the need for societal adjoining, that even our thoughts arrive in pairs.
-This is part of the philosophy of the whole thing, click on words that sound similar and it increases the effects, the cognitive load, the differeent wayss the screendances, the text glows everything shifts when a bias enters your mind.
+This is part of the philosophy of the whole thing, click on words that sound similar and it increases the effects, the cognitive load, the differeent wayss the screen dances, the text glows everything shifts when a bias enters your mind.
 
 And even if not at first, it is as clearly visible to one as the rest of the universe, whether the bias is coloured or distorted. 
 
