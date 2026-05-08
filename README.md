@@ -6,7 +6,7 @@ An exploratory semantic interaction environment investigating associative cognit
 
 # Foreword
 
-Poems are themselves a very final medium, my exploration of such intents to balance the technical accuracy of the levels that the emotional experience ,the poetry, intends to invoke. So, semantics, traversal and such are used to preserve precision.
+Poems are themselves a very final medium, my exploration of such intents to balance the technical accuracy of the levels that the emotional experience the poetry, intends to invoke. So, semantics, traversal and such are used to preserve precision.
 
 It is important to understand that these cognitively heavy words are used to maximize the bridge between the emotional and technical parts of this showcase.
 
@@ -20,17 +20,17 @@ It is an attempt to replicate the connection patterns that my mind goes through.
 
 The use of ai allows for a more sophisticated approach for the patterns.
 
-The diverseness of connections while interesting academically cause a cognitive toll on an individual,
+The diverseness of connections, while interesting academically causes a cognitive toll on an individual,
 causing a need to stabilize and adapt.
 
 This project is a result of understanding that very need and explaining how it is taken away slowly in systems where power in divided unequally with needs.
 
-So basically it shows how every part of thinking is connected, you cant think about 1 thing without believeing in somethigns around it. 
+So, basically it shows how every part of thinking is connected, you cant think about 1 thing without believing in somethings around it. 
 
-Every thought we have doesn't exist alone, that itself says a lot about the need for societal adjourning, that even our thoughts arrive in pairs.
-This is part of the philosophy of the whole thing, click on words that sound similar and it increasess the effe cts, the cognitive load, the differeent wayss the screendances, the text glowss everything shsifts when a bias enters your mind.
+Every thought we have doesn't exist alone, that itself says a lot about the need for societal adjoining, that even our thoughts arrive in pairs.
+This is part of the philosophy of the whole thing, click on words that sound similar and it increases the effects, the cognitive load, the differeent wayss the screendances, the text glows everything shifts when a bias enters your mind.
 
-And even if not at first, it is as clearly visible to one as the rest of the universe if coloured or distorted. 
+And even if not at first, it is as clearly visible to one as the rest of the universe, whether the bias is coloured or distorted. 
 
 The need isn't to just recognise said bias,
 it is to understand and let it colour your canvas.
