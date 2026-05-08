@@ -323,7 +323,7 @@ h3 {
 .intro-copy p {
   margin: 0 0 1.1rem;
   color: rgba(235,235,227,0.72);
-  font-size: clamp(1rem, 2vw, 1.12rem);
+  font-size: clamp(0.9rem, 1.5vw, 1.05rem);
   line-height: 2;
 }
 
@@ -401,7 +401,7 @@ h3 {
   color: #f0f0e8;
   font-size: clamp(2rem, 6vw, 3.7rem);
   line-height: 1.18;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .subtitle {
@@ -1329,6 +1329,9 @@ class SemanticState {
     this.intensity = 0.62;
     this.driftEnabled = false;
     this.pendingDriftNode = null;
+    this.cognitiveLoad = 0;
+    this.biasCluster = null;
+    this.visitedMotifs = new Set();
   }
 
   activate({ motif, cluster, mode }) {
@@ -1729,6 +1732,8 @@ class AtmosphereRenderer {
     this.particleOpacity = 0.1 + intensity * 0.08;
     this.particleSpeedScale = 0.8 + intensity * 0.25;
     this.haloOpacityScale = 0.62 + intensity * 0.35;
+    
+    document.body.style.filter = `saturate(${1 + this.state.cognitiveLoad * 0.5}) contrast(${1 + this.state.cognitiveLoad * 0.2})`;
   }
 
   updateHaloCache() {
@@ -1864,20 +1869,24 @@ class SemanticFragmentParticle {
     let targetVx = this.baseVx;
     let targetVy = this.baseVy;
 
-    if (mode === "labor") targetVy = Math.abs(this.baseVy) + 0.3;
-    else if (mode === "divine") targetVy = -Math.abs(this.baseVy) - 0.1;
+    const pressureMultiplier = 1 + (this.cognitiveLoad || 0) * 2.5;
+    targetVx *= pressureMultiplier;
+    targetVy *= pressureMultiplier;
+
+    if (mode === "labor") targetVy = (Math.abs(this.baseVy) + 0.3) * pressureMultiplier;
+    else if (mode === "divine") targetVy = (-Math.abs(this.baseVy) - 0.1) * pressureMultiplier;
     else if (mode === "observer") {
       targetVx = this.baseVx * 0.1;
       targetVy = this.baseVy * 0.1;
     } else if (mode === "governance" || mode === "emergent") {
-      targetVx = this.baseVx > 0 ? 0.2 : -0.2;
-      targetVy = this.baseVy * 0.4;
+      targetVx = (this.baseVx > 0 ? 0.2 : -0.2) * pressureMultiplier;
+      targetVy = this.baseVy * 0.4 * pressureMultiplier;
     }
 
     this.vx += (targetVx - this.vx) * 0.02;
     this.vy += (targetVy - this.vy) * 0.02;
     
-    const turbulence = Math.sin(phase * 0.5 + this.phaseOffset) * 0.05;
+    const turbulence = Math.sin(phase * (0.5 + (this.cognitiveLoad || 0)) + this.phaseOffset) * (0.05 + (this.cognitiveLoad || 0) * 0.15);
     
     this.x += (this.vx + turbulence) * speedScale * this.speedMult;
     this.y += this.vy * speedScale * this.speedMult;
@@ -2517,6 +2526,17 @@ class SemanticCognitionInterface {
 
     this.renderer.resetSemanticState();
     this.memory.remember(targetMotif);
+    this.state.visitedMotifs.add(targetMotif);
+    
+    if (this.state.biasCluster === cluster) {
+      this.state.cognitiveLoad = Math.min(this.state.cognitiveLoad + 0.15, 1);
+    } else {
+      this.state.biasCluster = cluster;
+      this.state.cognitiveLoad = Math.max(0.2, this.state.cognitiveLoad * 0.5);
+    }
+    
+    this.atmosphere.particles.forEach(p => p.cognitiveLoad = this.state.cognitiveLoad);
+    
     this.state.activate({ motif: targetMotif, cluster, mode: this.state.mode });
     this.renderer.updateBreadcrumbs(this.memory.path, targetMotif, cluster);
     this.renderer.markActiveMapNode(targetMotif);
@@ -2577,9 +2597,17 @@ class SemanticCognitionInterface {
     this.state.activeMotif = null;
     this.state.activeCluster = "dormant";
     this.state.pendingDriftNode = null;
+    this.state.cognitiveLoad = Math.max(0, this.state.cognitiveLoad - 0.5);
     this.lastTraversal = null;
     this.memory.path = [];
     this.renderer.clearSemanticState();
+    
+    document.querySelectorAll(".motif").forEach(el => {
+      if (this.state.visitedMotifs.has(el.dataset.motif)) {
+        el.classList.add("memory-scar");
+      }
+    });
+    
     this.renderer.markActiveMapNode(null);
     this.atmosphere.setCluster("dormant");
     this.atmosphere.updateHaloCache();
